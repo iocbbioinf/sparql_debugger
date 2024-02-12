@@ -13,6 +13,9 @@ import { servletBase } from "../config";
 import { endpoints, defaultEndpoint, defaultQuery } from "./config";
 import { demoQueries } from "./demos";
 
+import GmailTreeView from "../debugTree.js"
+
+
 import "./Sparql.scss";
 
 
@@ -123,9 +126,13 @@ function Sparql() {
 
         <Col xl={9} lg={8} md={7} sm={12} style={{position: "inherit"}}>
           <Yasgui ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
-        </Col>
-      </Row>
+        </Col>    
+      </Row>  
+      <div className="debugTreeComponent">
+          <GmailTreeView/>
+      </div>
     </Container>
+    
   );
 }
 

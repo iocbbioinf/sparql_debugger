@@ -198,10 +198,20 @@ function DelimiterRow() {
 function Home() {
   return (    
     <div>
-      <GmailTreeView/>
+      <Container>
+        <CardsRow/>
+        <DelimiterRow/>
+        <ChemistryRow/>        
+        <DelimiterRow/>
+        <DatabaseRow/>
+        <div className="debugTreeComponent">
+          <GmailTreeView/>
+        </div>
+      </Container>
     </div>
   );
 }
+
 
 
 export default Home;

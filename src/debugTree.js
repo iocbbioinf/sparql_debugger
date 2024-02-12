@@ -23,7 +23,8 @@ import ErrorIcon from '@mui/icons-material/Error';
 import PendingIcon from '@mui/icons-material/Pending';
 import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
-
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip';
 
 const PENDING_STATE = "pending"
 const SUCCESS_STATE = "success"
@@ -59,6 +60,22 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
     },
   },
 }));
+
+const RequestIconButon = React.forwardRef(function RequestIconButon(props, ref) {
+  const showRequest = () => {
+    console.log('Icon clicked');
+    // Add your click handling logic here
+  };
+
+  return(
+    <Tooltip title='request'>
+      <IconButton onClick={showRequest} hover="request" aria-label="request">
+        <InputIcon />
+      </IconButton>
+    </Tooltip>    
+  )
+})
+
 
 const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
   const theme = useTheme();
@@ -126,7 +143,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
               {responseItemCount}
             </Typography>
-            <Box component={InputIcon} color="inherit" sx={{ mr: 1 }} />
+            <Box component={RequestIconButon} color="inherit" sx={{ mr: 1 }} />
             <Box component={OutputIcon} color="inherit" sx={{ mr: 1 }} />  
           </Box>
         }
@@ -171,7 +188,11 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
 
 export default function GmailTreeView() {
   return (
-    <TreeView
+    <div>
+      <div>
+        <h3>Debug</h3>        
+      </div>    
+      <TreeView
       aria-label="gmail"
       defaultExpanded={['3']}
       defaultCollapseIcon={<ArrowDropDownIcon />}
@@ -196,5 +217,6 @@ export default function GmailTreeView() {
      </StyledTreeItem>
       <StyledTreeItem nodeId="4" state="failure" url="https://service2.org" time="2s"/>
     </TreeView>
+    </div>
   );
 }

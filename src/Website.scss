@@ -15,6 +15,17 @@
       width: 4em;
       height: 4em;
     }
+
+    .debugTreeComponent {
+/*      position: absolute;*/
+
+      border-top: 2px solid #000;
+      padding: 10px; /* Optional: Adds some space inside the container */
+
+      bottom: 0; /* Aligns the child component to the bottom of the parent container */
+      width: 100%; /* Optional, depending on your layout needs */
+    }
+    
   }
 
   > .footer {
