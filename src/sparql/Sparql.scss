@@ -1,0 +1,33 @@
+@import "~bootstrap/scss/bootstrap";
+
+
+.sparql-panel .accordion .card {
+  padding: 0.3em 0;
+  border: none;
+  overflow: visible;
+
+  .card-header {
+    padding: 0;
+    border: none;
+
+    > button {
+      text-align: left;
+    }
+  }
+
+  .card-body {
+    padding: 0.5em;
+
+    > ul {
+      margin-block-start: 0em;
+      margin-block-end: 0em;
+      padding-inline-start: 25px;
+    }
+  }
+
+  .card-body.demo-section {
+    padding: 0 0 0 0.5em;
+    margin: 0.5em 0 0 0.5em;
+    border-left: 1px solid rgba(0, 0, 0, 0.125);
+  }
+}

@@ -1,0 +1,6 @@
+@import "~bootstrap/scss/bootstrap";
+
+
+*:focus {
+  outline-color: rgba($component-active-bg, .25);
+}

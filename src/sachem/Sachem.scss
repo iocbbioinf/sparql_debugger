@@ -1,0 +1,89 @@
+.sachem-search {
+  div.Ketcher-root {
+    min-width: unset !important;
+    max-height: 600px;
+
+    // top toolbar
+    div.css-1jw7nj {
+      height: 40px;
+      gap: 0px;
+
+      // toolbar button
+      button.css-iw95iu {
+        height: 32px;
+        width: 32px;
+        padding: 4px;
+      }
+    }
+  }
+
+  // input range
+  .input-range {
+    .input-range__label--min, .input-range__label--max {
+      display: none;
+    }
+
+    .input-range__label {
+      color: rgb(33, 37, 41);
+      font-family: inherit !important;
+    }
+
+    .input-range__label--value {
+      top: -2.1rem !important;
+      font-size: 95% !important;
+    }
+  }
+}
+
+
+.sachem-results {
+  max-width: 1350px !important;
+
+  .compound-card {
+    width: 190px;
+    margin: 15px;
+
+    .spinner {
+      width: 1em;
+      height: 1em;
+    }
+
+    .card-img-top {
+      width: 160px;
+      height: 160px;
+      margin: 0px 15px 15px 15px;
+    }
+
+    .card-body {
+      padding: 1.25rem 0px !important;
+    }
+  }
+
+  .c-pointer {
+    cursor: pointer;
+  }
+
+  .spinner {
+    width: 4em;
+    height: 4em;
+  }
+
+  pre {
+    font-size: 80%;
+  }
+
+  .warning {
+    margin-left: 1em;
+  }
+}
+
+
+.compound-tooltip {
+  max-width: 450px !important;
+
+  img {
+    width: 420px;
+    height: 420px;
+    margin: 15px;
+  }
+}

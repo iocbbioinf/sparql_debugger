@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDSM / SPARQL interface manual</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="shortcut icon" type="image/png" href="../favicon.ico"/>
+
+  <!-- Matomo -->
+  <script type="text/javascript">
+    var _paq = _paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(["setDoNotTrack", true]);
+    _paq.push(['trackPageView']);
+    (function() {
+        var u="/matomo/";
+        _paq.push(['setTrackerUrl', u+'matomo.php']);
+        _paq.push(['setSiteId', '1']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <!-- End Matomo Code -->
+</head>
+<body>
+<main class="container pl-4 pr-4">
+
+<h1 class='display-3 mt-3'>Interoperable Chemical Structure Search Service</h1>
+<h1>User Manual</h1>
+
+<p>This manual describes the functionality of the provided user interface, and
+the syntax and semantics of the molecular and substructural queries that the
+users can submit to the SPARQL endpoint.</p>
+
+<h1>User interface</h1>
+
+<p>The user interface is separated into three parts: The SPARQL query editor,
+result browser, and the list of example queries. We briefly describe the
+functionality of each.</p>
+
+<h2>Example queries</h2>
+
+<p>Example queries are provided on the left margin of the interface. The users
+can exploit them as a base for constructing more advanced queries.</p>
+
+<ul>
+<li><p>To run an example query, first choose one from the list on the left by clicking it.</p>
+<figure class="figure">
+  <img src="media/manual-example-select.png" class="figure-img img-fluid rounded img-thumbnail">
+  <figcaption class="figure-caption">Choosing the example query.</figcaption>
+</figure>
+</li>
+
+<li><p>After selecting an example query, two buttons appear: The <em>Run
+demo</em> button can be used to execute the query and see the result right
+away. <em>Edit query</em> button only transfers the text query to the Query
+Editor, where the user can subsequently edit it to execute a modified
+query.</p>
+<figure class="figure">
+  <img src="media/manual-example-run.png" class="figure-img img-fluid rounded img-thumbnail">
+  <figcaption class="figure-caption">Use the buttons to execute or edit the query.</figcaption>
+</figure>
+</li>
+</ul>
+
+<h2>Query editor</h2>
+
+<p>The text area can be used to specify various SPARQL queries, target SPARQL
+endpoint (any publicly available endpoint, not only the IDSM one), and to
+execute the query. The queries are specified in standard
+<a href="https://en.wikipedia.org/wiki/SPARQL">SPARQL syntax</a>. The interface
+provides basic syntax highlighting and autocompletion of prefixes and keywords.
+Several queries can be edited and executed at once, using the integrated tabs
+functionality. Tabs and their contents are persistent even if the user closes
+the frontend page in browser.</p>
+
+<p>An example query can be run as such:</p>
+
+<ul>
+
+<li><p>First, the user fills in the SPARQL query. The image shows a query
+that selects substructures that contain chlorine connected to several
+carbons:</p>
+<figure class="figure">
+  <img src="media/manual-query.png" class="figure-img img-fluid rounded img-thumbnail">
+  <figcaption class="figure-caption">Query editor with an example query.</figcaption>
+</figure>
+</li>
+
+<li><p>Second, the target SPARQL endpoint is selected. Here, we use the IDSM
+endpoint directly:</p>
+<figure class="figure">
+  <img src="media/manual-endpoint.png" class="figure-img img-fluid rounded img-thumbnail">
+  <figcaption class="figure-caption">Endpoint selector.</figcaption>
+</figure>
+<p>The button on the left of the endpoint selection can be optionally used to
+set up other query parameters, including the HTTP parameters and extra
+arguments.</p>
+</li>
+
+<li><p>Finally, the query is executed using the corresponding button:</p>
+<figure class="figure">
+  <img src="media/manual-run.png" class="figure-img img-fluid rounded img-thumbnail">
+  <figcaption class="figure-caption">Button for executing the query.</figcaption>
+</figure>
+<p>The results can be observed in a table below the query editor.</p>
+</li>
+
+</ul>
+
+<h2>Query result visualizer</h2>
+
+<p>The visualization of the SPARQL query results is displayed after the query is
+successfully executed. Two switchable views of the result data are provided:</p>
+
+<ul>
+<li><p><em>Table+</em> view displays the response arranged in a paginated table,
+similar to the results of the SQL queries. URIs of molecules are automatically
+displayed together with a corresponding generated zoomable image.</p>
+<figure class="figure">
+  <img src="media/manual-result-table.png" class="figure-img img-fluid rounded img-thumbnail">
+  <figcaption class="figure-caption">Table with example query results.</figcaption>
+</figure>
+</li>
+<li><p><em>Response</em> view displays raw, unformatted result of the SPARQL
+query.</p></li>
+</ul>
+
+
+<h1>Sachem endpoints</h1>
+
+<h2>Procedure calls in SPARQL</h2>
+
+<p> To avoid complicating the SPARQL syntax, procedure calls are expressed as
+triple patterns using special predicate IRIs that identify the procedure. The
+advantage of this approach is its transparecy for the user: Procedure calls,
+their arguments and corresponding results can be queried in the same way as the
+data triplets that are stored persistently in a database.</p>
+
+<p> In our setting, the object of the triple pattern always represents
+arguments, and the subject of the triple pattern always represents results of
+the procedure call: <code>result procedure argument</code>. The object
+(argument) in such triplet must be a blank node expressed in abbreviated form
+(i.e. by using <code>[]</code>). Properties of this blank node are then
+understood as procedure arguments, objects of these properties must be constant
+values or bound variables.</p>
+
+<h3>Procedure arguments and results</h3>
+
+<p> During the evaluation, the argument values are passed to the corresponding
+procedure. IRIs of the arguments are specified in the procedure call
+definition. Using such mapping brings several advantages: Easy specification
+of default argument values, connection of argument values to their names
+(specified as IRIs), ability ty process any ordering of the arguments, and
+better description of the arguments by the database ontology.</p>
+
+<p> Results of a procedure call are represented as the subject of the triple
+pattern. If the procedure returns a simple data type (e.g. a list of URIs), the
+variable used as the subject is bound to the results of the procedure.
+
+To allow returning structured results with more individual values (e.g.
+compounds that match given similarity search query along with their similarity
+scores), we have defined a special way to represent multi-value results of
+procedure calls similar to the way of passing multiple procedure arguments: The
+subject of the procedure call is also specified as a blank node in abbreviated
+form, individual properties of the blank node represent corresponding fields in
+the structured result value. Objects of these properties are either variables
+that are bound to the result values during the procedure evaluation, or
+constants that serve as filters on the result values.</p>
+
+<h2>Supported datasets</h2>
+
+<p> The server provides a distinct SPARQL endpoint for each of the supported
+datasets. Currently supported datasets include:</p>
+
+<ul class="uk-list uk-list-bullet">
+<li>PubChem (endpoint <code>idsm:pubchem</code>)</li>
+<li>ChEMBL (endpoint <code>idsm:chembl</code>)</li>
+<li>ChEBI (endpoint <code>idsm:chebi</code>)</li>
+<li>DrugBank (endpoint <code>idsm:drugbank</code>)</li>
+<li>Wikidata (endpoint <code>idsm:wikidata</code>)</li>
+</ul>
+
+<p>We write the IRI prefix <code>idsm:</code> as a shortcut for
+<code>https://idsm.elixir-czech.cz/sparql/endpoint/</code> for
+convenience. And similarly, we write the IRI prefix <code>sachem:</code>
+as a shortcut for
+<code>http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#</code>.
+For example, dataset specified by <code>idsm:chebi</code> is
+available at IRI
+<code>https://idsm.elixir-czech.cz/sparql/endpoint/chebi</code>.</p>
+
+<h2>Supported procedures call</h2>
+
+<p> The endpoints support queries that may call the chemical substructure and
+similarity search procedures on all supported datasets.</p>
+
+<h3>Similarity search</h3>
+
+<p> The similarity search procedure call is mapped to property
+<code>sachem:similaritySearch</code>. It accepts following arguments:</p>
+
+<ul class="uk-list uk-list-bullet">
+
+<li><code>sachem:query</code> specifies the chemical structure to be
+searched for. Supported query types include 
+<a href="https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system">
+SMILES</a> and <a href="https://en.wikipedia.org/wiki/Chemical_table_file">
+MDL molecule file</a>. This argument is mandatory.</li>
+
+<li><code>sachem:cutoff</code> specifies the cutoff for the similarity search
+(the default value is <code>0.8</code>, values are in range of <code>0</code>
+to <code>1</code>).</li>
+
+<li><code>sachem:topn</code> sets the upper limit on the count of returned
+results (default value is "unlimited", specified by <code>-1</code>).</li>
+</ul>
+
+<p>Results of the procedure are compound values, that have following
+properties:</p>
+
+<ul class="uk-list uk-list-bullet">
+<li><code>sachem:compound</code> &mdash; compound URI</li>
+<li><code>sachem:score</code> &mdash; the similarity score of the compound</li>
+</ul>
+
+<p>There is also a simplified variant of the similarity search procedure,
+mapped to property <code>sachem:similarCompoundSearch</code>. It uses the same
+arguments as <code>sachem:similaritySearch</code>, but returns the identified
+compounds directly as single-value non-structured results.</p>
+
+<h3>Substructure search</h3>
+
+<p>The substructure search procedure is mapped to property
+<code>sachem:substructureSearch</code>. It uses arguments
+<code>sachem:query</code> and <code>sachem:topn</code> with the same meaning as
+in the previous case, together with following extra arguments:</p>
+
+<ul class="uk-list uk-list-bullet">
+<li><code>sachem:searchMode</code>
+chooses between exact structure and substructure search, using parameter values <code>sachem:exactSearch</code> and <code>sachem:substructureSearch</code>, respectively.
+</li>
+
+<li><code>sachem:tautomerMode</code>
+chooses between various tautomer handling modes, value <code>sachem:ignoreTautomers</code> disables any tautomerism processing, <code>sachem:inchiTautomers</code> uses InChI-derived tautomer mathcing.
+</li>
+
+<li><code>sachem:chargeMode</code>
+chooses a coalescing mode of unspecified charge values in query, value <code>sachem:defaultChargeAsAny</code> assumes that unspecified charges are wildcard, <code>sachem:defaultChargeAsZero</code> assumes that unspecified charges must match zero, and <code>sachem:ignoreCharges</code> disables any charge matching.
+</li>
+
+<li><code>sachem:isotopeMode</code>
+chooses a coalescing mode of unspecified isotope values in query, value <code>sachem:defaultIsotopeAsAny</code> assumes that unspecified isotope values match any isotope, <code>sachem:defaultIsotopeAsStandard</code> assumes that unspecified isotopes must match the standard isotope of the element, and <code>sachem:ignoreIsotopes</code> disables any isotope matching.
+</li>
+
+<li><code>sachem:stereoMode</code>
+chooses stereochemistry handling using <code>sachem:strictStereo</code> or disables it completely using <code>sachem:ignoreStereo</code>
+</li>
+
+<li><code>sachem:radicalMode</code>
+chooses handling of free radicals, using either <code>sachem:ignoreSpinMultiplicity</code> that disables it completely, or <code>sachem:defaultSpinMultiplicityAsZero</code> and <code>sachem:defaultSpinMultiplicityAsAny</code> that behave just like the isotope and charge modes.
+</li>
+</ul>
+
+<p>Results &mdash; the compounds which contain the query as a substructure
+&mdash; are non-structured and returned directly as the subject of the
+procedure call triplet.</p>
+
+</main>
+
+<div class="justify-content-center align-items-center d-flex mt-5" style="background: #f5f5f5; border-top: 1px solid rgba(0, 0, 0, 0.1);">
+  <div class="mb-1 px-4 col-lg-auto col-md-auto col-auto">
+    <span>&copy; 2018&ndash;2021 <a target="_blank" rel="noreferrer" href="https://www.uochb.cz/en">IOCB Prague</a></span>
+  </div>
+  <div class="mb-0 p-0 col-lg-auto col-md-auto col-12"></div>
+  <!--
+  <div class="mb-1 px-4 col-lg-auto col-md-auto col-auto">
+    <button type="button" class="p-0 btn btn-link">Data privacy</button>
+  </div>
+  <div class="mb-1 px-4 col-lg-auto col-md-auto col-auto">
+    <button type="button" class="p-0 btn btn-link">Contacts</button>
+  </div>
+  <div class="mb-0 p-0 col-lg-auto col-md-12 col-12"></div>
+  -->
+  <div class="mb-1 px-4 col-lg-auto col-md-auto col-auto">
+    <a target="_blank" rel="noreferrer" href="https://www.uochb.cz/en" class="d-block p-1">
+      <img src="/static/media/logo-uochb.051af5cc.png" height="40" class="">
+    </a>
+  </div>
+  <div class="mb-1 px-4 col-lg-auto col-md-auto col-auto">
+    <a target="_blank" rel="noreferrer" href="https://www.elixir-czech.cz/" class="d-block p-1">
+      <img src="/static/media/logo-elixir.f3e4175a.png" height="40" class="">
+    </a>
+  </div>
+</div>
+
+
+</body>
+</html>
