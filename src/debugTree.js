@@ -25,10 +25,28 @@ import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip';
+import Link from '@mui/material/Link';
+import Modal from '@mui/material/Modal';
+import JSONPretty from 'react-json-pretty';
 
 const PENDING_STATE = "pending"
 const SUCCESS_STATE = "success"
 const FAILURE_STATE = "failure"
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 'auto',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+  overflow: 'auto',
+  maxHeight: '90vh'
+};
+
 
 const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
   color: theme.palette.text.secondary,
@@ -61,18 +79,109 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
   },
 }));
 
-const RequestIconButon = React.forwardRef(function RequestIconButon(props, ref) {
+const ReqRespIconButon = React.forwardRef(function ReqRespIconButon(props, ref) {
+
+  const {
+    isRequest,
+    isErr,
+    ...other
+  } = props;
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   const showRequest = () => {
     console.log('Icon clicked');
     // Add your click handling logic here
   };
 
+  const responseOKJson = {"head": {"vars": ["COMPOUND"]},"results": {"bindings": [{"COMPOUND": {"type": "uri","value": "http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID3237257"}},{"COMPOUND": {"type": "uri","value": "http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID3252677"}}]}}
+  const responseErr = `
+  org.postgresql.util.PSQLException: ERROR: canceling statement due to statement timeout
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2674)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2364)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:354)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:484)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:404)
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:325)
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:311)
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:287)
+	at org.postgresql.jdbc.PgStatement.executeQuery(PgStatement.java:239)
+	at cz.iocb.chemweb.server.sparql.engine.Request.execute(Unknown Source)
+	at cz.iocb.chemweb.server.servlets.endpoint.EndpointServlet.process(Unknown Source)
+	at cz.iocb.chemweb.server.servlets.endpoint.EndpointServlet.doPost(Unknown Source)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:682)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:765)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:177)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:543)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:135)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:698)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:367)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:639)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:885)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1688)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+  `
+  const requestSparql = `SELECT ?COMPOUND ?ENTRY WHERE
+  {
+    {
+      SELECT ?COMPOUND ?UNIPROT WHERE {
+        SERVICE <https://service2.org> {
+          SERVICE <https://service3.org> {
+            ?COMPOUND sachem:substructureSearch [
+                sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
+          }
+  
+          ?ACTIVITY rdf:type chembl:Activity;
+            chembl:hasMolecule ?COMPOUND;
+            chembl:hasAssay ?ASSAY.
+          ?ASSAY chembl:hasTarget ?TARGET.
+          ?TARGET chembl:hasTargetComponent ?COMPONENT.
+          ?COMPONENT chembl:targetCmptXref ?UNIPROT.
+          ?UNIPROT rdf:type chembl:UniprotRef.
+        }
+      }
+    }
+  
+    ?ENTRY skos:exactMatch ?UNIPROT.
+  }`
+
+  const iconTitle = (isRequest === true) ? "request" : "response"
+  const reqRespData = (isRequest === true) ? requestSparql : (isErr === true) ? responseErr : responseOKJson
+  
   return(
-    <Tooltip title='request'>
-      <IconButton onClick={showRequest} hover="request" aria-label="request">
-        <InputIcon />
-      </IconButton>
-    </Tooltip>    
+    <div>      
+      <Tooltip title={iconTitle}>
+        <IconButton onClick={handleOpen} hover={iconTitle} aria-label={iconTitle}>
+          <InputIcon />
+        </IconButton>
+      </Tooltip>    
+      <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+        <Box sx={modalStyle}>
+          <JSONPretty id="json-pretty" data={reqRespData} theme={JSONPretty.monikai}></JSONPretty>
+        </Box>
+      </Modal>
+    </div>
   )
 })
 
@@ -97,7 +206,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
       theme.palette.mode !== 'dark' ? bgColor : bgColorForDarkMode,
   };
 
-  if(state==PENDING_STATE) {
+  if(state===PENDING_STATE) {
     return(
       <StyledTreeItemRoot
       label={
@@ -121,7 +230,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
       ref={ref}
     />
     )
-  } else if(state == SUCCESS_STATE) {
+  } else if(state === SUCCESS_STATE) {
     return (    
       <StyledTreeItemRoot
         label={
@@ -135,7 +244,9 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
           >
             <Box component={DoneOutlineIcon} color="inherit" sx={{ mr: 1 }} />
             <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-              {url}
+                <Link href={url} target="_blank" rel="noopener noreferrer">
+                {url}
+                </Link>                          
             </Typography>            
             <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
               {time}
@@ -143,8 +254,15 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
               {responseItemCount}
             </Typography>
-            <Box component={RequestIconButon} color="inherit" sx={{ mr: 1 }} />
-            <Box component={OutputIcon} color="inherit" sx={{ mr: 1 }} />  
+
+            <Box color="inherit" sx={{ mr: 1 }} >
+              <ReqRespIconButon isRequest={true}/>
+            </Box>
+            <Box color="inherit" sx={{ mr: 1 }} >
+              <ReqRespIconButon isRequest={false}/>
+            </Box>
+
+
           </Box>
         }
         style={styleProps}
@@ -152,7 +270,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
         ref={ref}
       />    
     )
-  } else if(state == FAILURE_STATE) {
+  } else if(state === FAILURE_STATE) {
     return (    
       <StyledTreeItemRoot
         label={
@@ -174,7 +292,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             <Box component={InputIcon} color="inherit" sx={{ mr: 1 }} />
             <Box component={OutputIcon} color="inherit" sx={{ mr: 1 }} />  
           </Box>
-        }
+        } 
         style={styleProps}
         {...other}
         ref={ref}
