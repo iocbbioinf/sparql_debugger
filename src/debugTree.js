@@ -2,25 +2,16 @@ import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import MailIcon from '@mui/icons-material/Mail';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Label from '@mui/icons-material/Label';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
-import InfoIcon from '@mui/icons-material/Info';
-import ForumIcon from '@mui/icons-material/Forum';
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 import { TreeView } from '@mui/x-tree-view/TreeView';
 import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
 
-import UseAnimations from 'react-useanimations';
 import loading from 'react-useanimations/lib/loading';
 
-import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import ErrorIcon from '@mui/icons-material/Error';
-import PendingIcon from '@mui/icons-material/Pending';
 import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
 import IconButton from '@mui/material/IconButton'
@@ -28,10 +19,31 @@ import Tooltip from '@mui/material/Tooltip';
 import Link from '@mui/material/Link';
 import Modal from '@mui/material/Modal';
 import JSONPretty from 'react-json-pretty';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const PENDING_STATE = "pending"
 const SUCCESS_STATE = "success"
 const FAILURE_STATE = "failure"
+
+const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
+  backgroundColor: '#007800',
+  color: '#ffffff',
+  borderRadius: '50%'   
+});
+
+const StyledErrorIcon = styled(ErrorIcon)({
+  color: '#aa0000'  
+});
+
+
+const StyledLoadingIcon = styled(loading)({
+  color: "blue"
+})
+
+function AnimLoadingComponent() {
+  return <CircularProgress style={{ width: '20px', height: '20px'}} />;
+} 
+
 
 const modalStyle = {
   position: 'absolute',
@@ -163,12 +175,14 @@ const ReqRespIconButon = React.forwardRef(function ReqRespIconButon(props, ref) 
 
   const iconTitle = (isRequest === true) ? "request" : "response"
   const reqRespData = (isRequest === true) ? requestSparql : (isErr === true) ? responseErr : responseOKJson
+
+  const icon = (isRequest === true) ? <InputIcon/> : <OutputIcon/>
   
   return(
     <div>      
       <Tooltip title={iconTitle}>
         <IconButton onClick={handleOpen} hover={iconTitle} aria-label={iconTitle}>
-          <InputIcon />
+          {icon}
         </IconButton>
       </Tooltip>    
       <Modal
@@ -208,7 +222,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
 
   if(state===PENDING_STATE) {
     return(
-      <StyledTreeItemRoot
+      <TreeItem
       label={
         <Box
           sx={{
@@ -218,11 +232,17 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             pr: 0,
           }}
         >
-          <UseAnimations animation={loading}/>          
+          <Box sx={{ paddingRight: '10px' }}>
+            <AnimLoadingComponent/>
+          </Box>          
           <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-            {url}
-          </Typography>
-          <Box component={InputIcon} color="inherit" sx={{ mr: 1 }} />
+            <Link href={url} target="_blank" rel="noopener noreferrer">
+              {url}
+            </Link>                          
+          </Typography> 
+          <Box color="inherit" sx={{ mr: 1 }} >
+            <ReqRespIconButon isRequest={true}/>
+          </Box>
         </Box>
       }
       style={styleProps}
@@ -232,7 +252,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     )
   } else if(state === SUCCESS_STATE) {
     return (    
-      <StyledTreeItemRoot
+      <TreeItem
         label={
           <Box
             sx={{
@@ -242,18 +262,26 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
               pr: 0,
             }}
           >
-            <Box component={DoneOutlineIcon} color="inherit" sx={{ mr: 1 }} />
+            <Box sx={{ mr: 1 }}>
+              <StyledDoneRoundedIcon style={{ backgroundColor: '#007800', color: '#ffffff', borderRadius: '50%' }} />
+            </Box>
             <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
                 <Link href={url} target="_blank" rel="noopener noreferrer">
                 {url}
                 </Link>                          
-            </Typography>            
-            <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-              {time}
-            </Typography>
-            <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-              {responseItemCount}
-            </Typography>
+            </Typography> 
+
+            <Tooltip title='Time'>
+              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                {time}
+              </Typography>
+            </Tooltip>
+
+            <Tooltip title='Response Item Count'>
+              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                {responseItemCount}
+              </Typography>
+            </Tooltip>
 
             <Box color="inherit" sx={{ mr: 1 }} >
               <ReqRespIconButon isRequest={true}/>
@@ -272,7 +300,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     )
   } else if(state === FAILURE_STATE) {
     return (    
-      <StyledTreeItemRoot
+      <TreeItem
         label={
           <Box
             sx={{
@@ -282,15 +310,25 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
               pr: 0,
             }}
           >
-            <Box component={ErrorIcon} color="inherit" sx={{ mr: 1 }} />
+            <Box sx={{ mr: 1 }}>
+              <StyledErrorIcon style={{ color: '#aa0000'}}/>
+            </Box>
             <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-              {url}
-            </Typography>            
-            <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-              {time}
-            </Typography>
-            <Box component={InputIcon} color="inherit" sx={{ mr: 1 }} />
-            <Box component={OutputIcon} color="inherit" sx={{ mr: 1 }} />  
+              <Link href={url} target="_blank" rel="noopener noreferrer">
+                {url}
+              </Link>                          
+            </Typography> 
+            <Tooltip title='Time'>
+              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                {time}
+              </Typography>
+            </Tooltip>
+            <Box color="inherit" sx={{ mr: 1 }} >
+              <ReqRespIconButon isRequest={true}/>
+            </Box>
+            <Box color="inherit" sx={{ mr: 1 }} >
+              <ReqRespIconButon isRequest={false} isErr={true}/>
+            </Box>
           </Box>
         } 
         style={styleProps}
@@ -304,14 +342,14 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
 
 });
 
-export default function GmailTreeView() {
+export default function DebugTreeView() {
   return (
     <div>
       <div>
         <h3>Debug</h3>        
       </div>    
       <TreeView
-      aria-label="gmail"
+      aria-label="idsmDebug"
       defaultExpanded={['3']}
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}

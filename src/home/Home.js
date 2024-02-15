@@ -17,7 +17,7 @@ import databaseImage from './info-database.jpg';
 
 import "./Home.scss";
 
-import GmailTreeView from "../debugTree.js"
+import DebugTreeView from "../debugTree.js"
 
 function HomeCarousel() {
   React.useEffect(() => {
@@ -205,7 +205,7 @@ function Home() {
         <DelimiterRow/>
         <DatabaseRow/>
         <div className="debugTreeComponent">
-          <GmailTreeView/>
+          <DebugTreeView/>
         </div>
       </Container>
     </div>
