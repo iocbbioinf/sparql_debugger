@@ -21,9 +21,9 @@ import Modal from '@mui/material/Modal';
 import JSONPretty from 'react-json-pretty';
 import CircularProgress from '@mui/material/CircularProgress';
 
-const PENDING_STATE = "pending"
-const SUCCESS_STATE = "success"
-const FAILURE_STATE = "failure"
+const PENDING_STATE = "IN_PROGRESS"
+const SUCCESS_STATE = "SUCCESS"
+const FAILURE_STATE = "ERROR"
 
 const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   backgroundColor: '#007800',
@@ -135,7 +135,24 @@ const ReqRespIconButon = React.forwardRef(function ReqRespIconButon(props, ref) 
 	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)
 	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:543)
 	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:135)
-	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.valves.ErrorReportValve.    useEffect(() => {
+    const eventSource = new EventSource('http://localhost:8080/stream');
+
+    eventSource.onmessage = function(event) {
+        console.log('New event from server:', event.data);
+        setTreeData(JSON.parse(event.data));
+    };
+
+    eventSource.onerror = function(err) {
+        console.error('EventSource failed:', err);
+        eventSource.close();
+    };
+
+    return () => {
+        eventSource.close();
+    };
+}, []);
+invoke(ErrorReportValve.java:92)
 	at org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:698)
 	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)
 	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:367)
@@ -155,7 +172,7 @@ const ReqRespIconButon = React.forwardRef(function ReqRespIconButon(props, ref) 
       SELECT ?COMPOUND ?UNIPROT WHERE {
         SERVICE <https://service2.org> {
           SERVICE <https://service3.org> {
-            ?COMPOUND sachem:substructureSearch [
+            ?COMPOUND sachem:substructureSearch [PENDING
                 sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
           }
   
@@ -344,6 +361,70 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
 
 
 export default function DebugTreeView() {
+
+  /*
+  const [treeData, setTreeData] = React.useState({
+    root: { 
+      data: {
+        queryId: 1,
+        nodeId: 0,
+        seqId: 1,
+        startTime: 1713974230006,
+        httpState: 200,
+        state: "SUCCESS"
+      },
+      children: [
+        { data: {
+          queryId: 1,
+          nodeId: 1,
+          seqId: 1,
+          startTime: 1713974230006,
+          httpState: 200,
+          state: "SUCCESS"  
+        }},
+        { data: {
+          queryId: 2,
+          nodeId: 2,
+          seqId: 1,
+          startTime: 1713974230006,
+          httpState: 400,
+          state: "ERROR"  
+        }},
+      ]
+    }
+  })
+  */
+
+  const [treeData, setTreeData] = React.useState({root: {}});
+
+  React.useEffect(() => {
+    const eventSource = new EventSource('http://idsm-debugger.dyn.cloud.e-infra.cz/query?endpoint=https%3A%2F%2Fsparql.uniprot.org&query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20chembl%3A%20%3Chttp%3A%2F%2Frdf.ebi.ac.uk%2Fterms%2Fchembl%23%3E%0APREFIX%20uniprot%3A%20%3Chttp%3A%2F%2Fpurl.uniprot.org%2Fcore%2F%3E%0APREFIX%20sachem%3A%20%3Chttp%3A%2F%2Fbioinfo.uochb.cas.cz%2Frdf%2Fv1.0%2Fsachem%23%3E%0APREFIX%20endpoint%3A%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2F%3E%0A%0ASELECT%20%3FCOMPOUND%20%3FUNIPROT%20%3FORGANISM_NAME%20WHERE%0A%7B%0A%20%20%20%20SERVICE%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2Fidsm%3E%20%7B%0A%20%20%20%20%20%20SERVICE%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2Fchembl%3E%20%7B%0A%20%20%20%20%20%20%20%20%3FCOMPOUND%20sachem%3AsubstructureSearch%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20sachem%3Aquery%20%22CC(%3DO)Oc1ccccc1C(O)%3DO%22%20%5D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%3FACTIVITY%20rdf%3Atype%20chembl%3AActivity%3B%0A%20%20%20%20%20%20chembl%3AhasMolecule%20%3FCOMPOUND%3B%0A%20%20%20%20%20%20chembl%3AhasAssay%20%3FASSAY.%0A%20%20%20%20%3FASSAY%20chembl%3AhasTarget%20%3FTARGET.%0A%20%20%20%20%3FTARGET%20chembl%3AhasTargetComponent%20%3FCOMPONENT.%0A%20%20%20%20%3FCOMPONENT%20chembl%3AtargetCmptXref%20%3FUNIPROT.%0A%20%20%20%20%3FUNIPROT%20rdf%3Atype%20chembl%3AUniprotRef.%0A%20%20%7D%0A%0A%20%20%3FUNIPROT%20uniprot%3Aorganism%20%3FORGANISM.%0A%20%20%3FORGANISM%20uniprot%3AscientificName%20%3FORGANISM_NAME.%0A%7D%0ALimit%2010');
+
+    eventSource.onmessage = function(event) {
+        console.log('New event from server:', event.data);
+        setTreeData(JSON.parse(event.data));
+    };
+
+    eventSource.onerror = function(err) {
+        console.error('EventSource failed:', err);
+        eventSource.close();
+    };
+
+    return () => {
+        eventSource.close();
+    };
+  }, []);
+
+
+  
+  const renderTree = (node) => (
+    node.hasOwnProperty("nodeId") ?
+      <StyledTreeItem nodeId={node.data.nodeId} state={node.data.state} url="https://service1.org" time={node.data.startTime} responseItemCount="15">
+          {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null}
+      </StyledTreeItem> : null
+  );
+
+
   return (
     <div>
       <div>
@@ -357,22 +438,7 @@ export default function DebugTreeView() {
       defaultEndIcon={<div style={{ width: 24 }} />}
       sx={{ height: 264, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
     >
-      <StyledTreeItem nodeId="1" state="success" url="https://service1.org" time="4s" responseItemCount="157"/>
-      <StyledTreeItem nodeId="2" state="pending" url="https://service2.org">
-        <StyledTreeItem
-          nodeId="21"
-          state="pending"
-          url="https://service3.org"
-        />
-        <StyledTreeItem
-          nodeId="22"
-          state="success"
-          url="https://service4.org"
-          time="5s" 
-          responseItemCount="207"
-        />
-     </StyledTreeItem>
-      <StyledTreeItem nodeId="4" state="failure" url="https://service2.org" time="2s"/>
+      {renderTree(treeData.root)}
     </TreeView>
     </div>
   );
