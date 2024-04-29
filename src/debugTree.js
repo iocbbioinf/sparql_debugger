@@ -371,7 +371,8 @@ export default function DebugTreeView() {
         seqId: 1,
         startTime: 1713974230006,
         httpState: 200,
-        state: "SUCCESS"
+        state: "SUCCESS",
+        parentNodeId: null
       },
       children: [
         { data: {
@@ -380,7 +381,8 @@ export default function DebugTreeView() {
           seqId: 1,
           startTime: 1713974230006,
           httpState: 200,
-          state: "SUCCESS"  
+          state: "SUCCESS",
+          parentNodeId: 0
         }},
         { data: {
           queryId: 2,
@@ -388,14 +390,15 @@ export default function DebugTreeView() {
           seqId: 1,
           startTime: 1713974230006,
           httpState: 400,
-          state: "ERROR"  
+          state: "ERROR",
+          parentNodeId: 0
         }},
       ]
     }
   })
   */
 
-  const [treeData, setTreeData] = React.useState({root: {}});
+  const [treeData, setTreeData] = React.useState({});
 
   React.useEffect(() => {
     const eventSource = new EventSource('http://idsm-debugger-test6.dyn.cloud.e-infra.cz/query?endpoint=https%3A%2F%2Fsparql.uniprot.org&query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20chembl%3A%20%3Chttp%3A%2F%2Frdf.ebi.ac.uk%2Fterms%2Fchembl%23%3E%0APREFIX%20uniprot%3A%20%3Chttp%3A%2F%2Fpurl.uniprot.org%2Fcore%2F%3E%0APREFIX%20sachem%3A%20%3Chttp%3A%2F%2Fbioinfo.uochb.cas.cz%2Frdf%2Fv1.0%2Fsachem%23%3E%0APREFIX%20endpoint%3A%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2F%3E%0A%0ASELECT%20%3FCOMPOUND%20%3FUNIPROT%20%3FORGANISM_NAME%20WHERE%0A%7B%0A%20%20%20%20SERVICE%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2Fidsm%3E%20%7B%0A%20%20%20%20%20%20SERVICE%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2Fchembl%3E%20%7B%0A%20%20%20%20%20%20%20%20%3FCOMPOUND%20sachem%3AsubstructureSearch%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20sachem%3Aquery%20%22CC(%3DO)Oc1ccccc1C(O)%3DO%22%20%5D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%3FACTIVITY%20rdf%3Atype%20chembl%3AActivity%3B%0A%20%20%20%20%20%20chembl%3AhasMolecule%20%3FCOMPOUND%3B%0A%20%20%20%20%20%20chembl%3AhasAssay%20%3FASSAY.%0A%20%20%20%20%3FASSAY%20chembl%3AhasTarget%20%3FTARGET.%0A%20%20%20%20%3FTARGET%20chembl%3AhasTargetComponent%20%3FCOMPONENT.%0A%20%20%20%20%3FCOMPONENT%20chembl%3AtargetCmptXref%20%3FUNIPROT.%0A%20%20%20%20%3FUNIPROT%20rdf%3Atype%20chembl%3AUniprotRef.%0A%20%20%7D%0A%0A%20%20%3FUNIPROT%20uniprot%3Aorganism%20%3FORGANISM.%0A%20%20%3FORGANISM%20uniprot%3AscientificName%20%3FORGANISM_NAME.%0A%7D%0ALimit%2010');
@@ -404,7 +407,8 @@ export default function DebugTreeView() {
 
     eventSource.onmessage = function(event) {
         console.log('New event from server:', event.data);
-        setTreeData(JSON.parse(event.data));
+
+        setTreeData(prevState => (refreshTree(prevState, JSON.parse(event.data))));
     };
 
     eventSource.onerror = function(err) {
@@ -417,13 +421,48 @@ export default function DebugTreeView() {
     };
   }, []);
 
+  function refreshTree(treeData, newNode) {
+    var updated = false
+
+    function refreshTreeRek(node) {
+        if (node.data.nodeId === newNode.nodeId) {
+            updated = true
+            return { ...node, data: newNode};
+        }
+
+        var result
+        if (node.children) {
+            result = {
+                ...node,
+                children: node.children.map(child => refreshTreeRek(child))
+            };
+        }
+
+        if (updated === false && node.data.nodeId === newNode.parentNodeId) {
+          result = {
+            ...result.data,
+            children: [...result.children, {data: newNode}]
+          }
+        }
+
+        return node;
+    }
+
+    if(treeData.root) {
+      var result = { root: refreshTreeRek(treeData.root) }; 
+      return result;
+    } else {
+      return {root: {data: newNode}};
+    }
+
+  } 
 
   
   const renderTree = (node) => (
-    node.hasOwnProperty("nodeId") ?
-      <StyledTreeItem nodeId={node.data.nodeId} state={node.data.state} url="https://service1.org" time={node.data.startTime} responseItemCount="15">
+    (!node || !node.data || node.data.nodeId === undefined) ? null :
+      <StyledTreeItem nodeId={node.data.nodeId.toString()} state={node.data.state} url="https://service1.org" time={node.data.startTime} responseItemCount="15">
           {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null}
-      </StyledTreeItem> : null
+      </StyledTreeItem>
   );
 
 
