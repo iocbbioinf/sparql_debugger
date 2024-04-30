@@ -53,6 +53,10 @@ class Yasgui extends React.Component {
     if(run)
       tab.yasqe.query.call();
   }
+
+  getCurrentQuery() {
+    return this.yasgui.getTab().yasqe.getValue()
+  }
 }
 
 
