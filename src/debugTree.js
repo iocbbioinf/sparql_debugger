@@ -365,7 +365,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
 });
 
 
-export default function DebugTreeView() {
+export default function DebugTreeView({ yasgui }) {
 
   /*
   const [treeData, setTreeData] = React.useState({
@@ -405,29 +405,9 @@ export default function DebugTreeView() {
 
   const [treeData, setTreeData] = React.useState({});
   const [expandedItems, setExpandedItems] = React.useState([]);
+  const [eventSource, setEventSource] = React.useState(null);
+  const [debugActive, setDebugActive] = React.useState(false);
 
-  const yasgui = React.useRef(null);
-
-  React.useEffect(() => {
-    const eventSource = new EventSource('http://idsm-debugger-test6.dyn.cloud.e-infra.cz/query?endpoint=https%3A%2F%2Fsparql.uniprot.org&query=PREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX%20chembl%3A%20%3Chttp%3A%2F%2Frdf.ebi.ac.uk%2Fterms%2Fchembl%23%3E%0APREFIX%20uniprot%3A%20%3Chttp%3A%2F%2Fpurl.uniprot.org%2Fcore%2F%3E%0APREFIX%20sachem%3A%20%3Chttp%3A%2F%2Fbioinfo.uochb.cas.cz%2Frdf%2Fv1.0%2Fsachem%23%3E%0APREFIX%20endpoint%3A%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2F%3E%0A%0ASELECT%20%3FCOMPOUND%20%3FUNIPROT%20%3FORGANISM_NAME%20WHERE%0A%7B%0A%20%20%20%20SERVICE%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2Fidsm%3E%20%7B%0A%20%20%20%20%20%20SERVICE%20%3Chttps%3A%2F%2Fidsm.elixir-czech.cz%2Fsparql%2Fendpoint%2Fchembl%3E%20%7B%0A%20%20%20%20%20%20%20%20%3FCOMPOUND%20sachem%3AsubstructureSearch%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20sachem%3Aquery%20%22CC(%3DO)Oc1ccccc1C(O)%3DO%22%20%5D%0A%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%3FACTIVITY%20rdf%3Atype%20chembl%3AActivity%3B%0A%20%20%20%20%20%20chembl%3AhasMolecule%20%3FCOMPOUND%3B%0A%20%20%20%20%20%20chembl%3AhasAssay%20%3FASSAY.%0A%20%20%20%20%3FASSAY%20chembl%3AhasTarget%20%3FTARGET.%0A%20%20%20%20%3FTARGET%20chembl%3AhasTargetComponent%20%3FCOMPONENT.%0A%20%20%20%20%3FCOMPONENT%20chembl%3AtargetCmptXref%20%3FUNIPROT.%0A%20%20%20%20%3FUNIPROT%20rdf%3Atype%20chembl%3AUniprotRef.%0A%20%20%7D%0A%0A%20%20%3FUNIPROT%20uniprot%3Aorganism%20%3FORGANISM.%0A%20%20%3FORGANISM%20uniprot%3AscientificName%20%3FORGANISM_NAME.%0A%7D%0ALimit%2010');
-//    const eventSource = new EventSource('http://localhost:8080/testSse');
-//    const eventSource = new EventSource('http://idsm-debugger-test6.dyn.cloud.e-infra.cz/testSse');
-
-    eventSource.onmessage = function(event) {
-        console.log('New event from server:', event.data);
-
-        setTreeData(prevState => (refreshTree(prevState, JSON.parse(event.data))));
-    };
-
-    eventSource.onerror = function(err) {
-        console.error('EventSource failed:', err);
-        eventSource.close();
-    };
-
-    return () => {
-        eventSource.close();
-    };
-  }, []);
 
   function refreshTree(treeData, newNode) {
     var updated = false
@@ -468,13 +448,53 @@ export default function DebugTreeView() {
   } 
 
   function handleExecuteQuery() {
-    console.log(yasgui.current.getCurrentQuery());
+    if(!debugActive) {
+      const baseUrl = "http://idsm-debugger-test6.dyn.cloud.e-infra.cz/query"
+      const params = {
+        endpoint: `${yasgui.current.getCurrentEndpoint()}`,
+        query: `${yasgui.current.getCurrentQuery()}`
+      }
+  
+      const encodedParams = Object.keys(params).map(key => {
+        return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
+      }).join('&');    
+  
+      const fullUrl = `${baseUrl}?${encodedParams}`;
+  
+      console.log(fullUrl);
+  
+      const eventSource = new EventSource(fullUrl);
+  
+      eventSource.onmessage = function(event) {
+          console.log('New event from server:', event.data);
+  
+          setTreeData(prevState => (refreshTree(prevState, JSON.parse(event.data))));
+      };
+  
+      eventSource.onerror = function(err) {
+          console.error('EventSource failed:', err);
+          eventSource.close();
+      };
+  
+      setEventSource(eventSource);  
+      setDebugActive(true);
+
+    } else {
+        if (eventSource) {
+            eventSource.close();
+            setEventSource(null);
+        }
+
+        setTreeData({});
+        setDebugActive(false);      
+    }
+
+
   }
-  
-  
+
   const renderTree = (node) => (
     (!node || !node.data || node.data.nodeId === undefined) ? null :
-      <StyledTreeItem itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} nodeId={node.data.nodeId.toString()} state={node.data.state} url="https://service1.org" time={node.data.startTime} responseItemCount="15">
+      <StyledTreeItem itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} nodeId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} time={node.data.startTime} responseItemCount="15">
           {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null}
       </StyledTreeItem>
   );
@@ -483,8 +503,9 @@ export default function DebugTreeView() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-        <h3 style={{ margin: '0 10px 0 0' }}>Debug</h3>
-        <Button variant="contained" onClick={handleExecuteQuery}>Execute Query</Button>
+        <Button variant="contained" onClick={handleExecuteQuery}>
+          {debugActive ? 'Stop Debugging' : 'Start Debugging'}        
+        </Button>
       </div>
       <TreeView
       aria-label="idsmDebug"
@@ -493,7 +514,7 @@ export default function DebugTreeView() {
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}
       defaultEndIcon={<div style={{ width: 24 }} />}
-      sx={{ height: 264, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+      sx={{ width: '100%', maxWidth: 800, overflowX: 'auto' }}
     >
       {renderTree(treeData.root)}
     </TreeView>

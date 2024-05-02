@@ -13,7 +13,7 @@ import { servletBase } from "../config";
 import { endpoints, defaultEndpoint, defaultQuery } from "./config";
 import { demoQueries } from "./demos";
 
-import GmailTreeView from "../debugTree.js"
+import DebugTreeView from "../debugTree.js"
 
 
 import "./Sparql.scss";
@@ -129,7 +129,7 @@ function Sparql() {
         </Col>    
       </Row>  
       <div className="debugTreeComponent">
-          <GmailTreeView/>
+          <DebugTreeView yasgui={yasgui}/>
       </div>
     </Container>
     
