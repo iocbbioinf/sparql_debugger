@@ -1,4 +1,5 @@
 import * as React from 'react';
+import axios from 'axios';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -60,8 +61,9 @@ const modalStyle = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-  overflow: 'auto',
-  maxHeight: '90vh'
+  overflow: 'auto',  
+  maxHeight: '90vh', 
+  maxWidth: '90vw' 
 };
 
 
@@ -96,110 +98,40 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
   },
 }));
 
-const ReqRespIconButon = React.forwardRef(function ReqRespIconButon(props, ref) {
-
-  const {
-    isRequest,
-    isErr,
-    ...other
-  } = props;
+const ReqRespIconButon = ({ queryId, callId, isRequest }) => {
 
   const [open, setOpen] = React.useState(false);
+  const [fileContent, setFileContent] = React.useState('');
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const baseUrl = "http://idsm-debugger-test6.dyn.cloud.e-infra.cz"
 
-  const showRequest = () => {
-    console.log('Icon clicked');
-    // Add your click handling logic here
+
+  const handleOpen = async () => {
+    try {
+        let reqResp = isRequest ? "request" : "response"
+        let fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`
+        const response = await axios.get(fullUrl);
+        setFileContent(response.data);
+        setOpen(true);
+    } catch (error) {
+        console.error('Error fetching file content:', error);
+        setFileContent('File not found or could not be loaded.');
+        setOpen(true);
+    }
   };
 
-  const responseOKJson = {"head": {"vars": ["COMPOUND"]},"results": {"bindings": [{"COMPOUND": {"type": "uri","value": "http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID3237257"}},{"COMPOUND": {"type": "uri","value": "http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID3252677"}}]}}
-  const responseErr = `
-  org.postgresql.util.PSQLException: ERROR: canceling statement due to statement timeout
-	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2674)
-	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2364)
-	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:354)
-	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:484)
-	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:404)
-	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:325)
-	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:311)
-	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:287)
-	at org.postgresql.jdbc.PgStatement.executeQuery(PgStatement.java:239)
-	at cz.iocb.chemweb.server.sparql.engine.Request.execute(Unknown Source)
-	at cz.iocb.chemweb.server.servlets.endpoint.EndpointServlet.process(Unknown Source)
-	at cz.iocb.chemweb.server.servlets.endpoint.EndpointServlet.doPost(Unknown Source)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:682)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:765)
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
-	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
-	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:177)
-	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)
-	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:543)
-	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:135)
-	at org.apache.catalina.valves.ErrorReportValve.    useEffect(() => {
-    const eventSource = new EventSource('http://localhost:8080/stream');
-
-    eventSource.onmessage = function(event) {
-        console.log('New event from server:', event.data);
-        setTreeData(JSON.parse(event.data));
-    };
-
-    eventSource.onerror = function(err) {
-        console.error('EventSource failed:', err);
-        eventSource.close();
-    };
-
-    return () => {
-        eventSource.close();
-    };
-}, []);
-invoke(ErrorReportValve.java:92)
-	at org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:698)
-	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)
-	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:367)
-	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:639)
-	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
-	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:885)
-	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1688)
-	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
-	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-  `
-  const requestSparql = `SELECT ?COMPOUND ?ENTRY WHERE
-  {
-    {
-      SELECT ?COMPOUND ?UNIPROT WHERE {
-        SERVICE <https://service2.org> {
-          SERVICE <https://service3.org> {
-            ?COMPOUND sachem:substructureSearch [PENDING
-                sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
-          }
-  
-          ?ACTIVITY rdf:type chembl:Activity;
-            chembl:hasMolecule ?COMPOUND;
-            chembl:hasAssay ?ASSAY.
-          ?ASSAY chembl:hasTarget ?TARGET.
-          ?TARGET chembl:hasTargetComponent ?COMPONENT.
-          ?COMPONENT chembl:targetCmptXref ?UNIPROT.
-          ?UNIPROT rdf:type chembl:UniprotRef.
-        }
-      }
-    }
-  
-    ?ENTRY skos:exactMatch ?UNIPROT.
-  }`
+  const handleClose = () => {
+      setOpen(false);
+  };
 
   const iconTitle = (isRequest === true) ? "request" : "response"
-  const reqRespData = (isRequest === true) ? requestSparql : (isErr === true) ? responseErr : responseOKJson
-
   const icon = (isRequest === true) ? <InputIcon/> : <OutputIcon/>
   
+  const jsonPrettyStyle = {
+    width: '100%',    // Ensures JSONPretty takes full width of modal
+    overflowX: 'auto' // Horizontal scrollbar for JSON content if it's too wide
+  };
+
   return(
     <div>      
       <Tooltip title={iconTitle}>
@@ -214,12 +146,12 @@ invoke(ErrorReportValve.java:92)
           aria-describedby="modal-modal-description"
         >
         <Box sx={modalStyle}>
-          <JSONPretty id="json-pretty" data={reqRespData} theme={JSONPretty.monikai}></JSONPretty>
+          <JSONPretty id="json-pretty" data={fileContent} theme={JSONPretty.monikai} style={jsonPrettyStyle}></JSONPretty>
         </Box>
       </Modal>
     </div>
   )
-})
+}
 
 
 const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
@@ -229,6 +161,8 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     color,
     colorForDarkMode,
     bgColorForDarkMode,
+    queryId,
+    callId,
     state,
     url,
     time,
@@ -263,7 +197,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             </Link>                          
           </Typography> 
           <Box color="inherit" sx={{ mr: 1 }} >
-            <ReqRespIconButon isRequest={true}/>
+            <ReqRespIconButon queryId={queryId} callId={callId} isRequest={true}/>
           </Box>
         </Box>
       }
@@ -306,10 +240,10 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             </Tooltip>
 
             <Box color="inherit" sx={{ mr: 1 }} >
-              <ReqRespIconButon isRequest={true}/>
+              <ReqRespIconButon queryId={queryId} callId={callId} isRequest={true}/>
             </Box>
             <Box color="inherit" sx={{ mr: 1 }} >
-              <ReqRespIconButon isRequest={false}/>
+              <ReqRespIconButon queryId={queryId} callId={callId} isRequest={false}/>
             </Box>
 
 
@@ -346,10 +280,10 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
               </Typography>
             </Tooltip>
             <Box color="inherit" sx={{ mr: 1 }} >
-              <ReqRespIconButon isRequest={true}/>
+              <ReqRespIconButon queryId={queryId} callId={callId} isRequest={true}/>
             </Box>
             <Box color="inherit" sx={{ mr: 1 }} >
-              <ReqRespIconButon isRequest={false} isErr={true}/>
+              <ReqRespIconButon queryId={queryId} callId={callId} isRequest={false} isErr={true}/>
             </Box>
           </Box>
         } 
@@ -434,6 +368,8 @@ export default function DebugTreeView({ yasgui }) {
           }
         }
 
+        result = result || node
+        
         return result;
     }
 
@@ -441,7 +377,7 @@ export default function DebugTreeView({ yasgui }) {
       var result = { root: refreshTreeRek(treeData.root) }; 
       return result;
     } else {
-      setExpandedItems([newNode.nodeId.toString()])      
+      setExpandedItems(oldState => [...oldState, newNode.nodeId.toString()]) 
       return {root: {data: newNode}};
     }
 
@@ -487,6 +423,7 @@ export default function DebugTreeView({ yasgui }) {
 
         setTreeData({});
         setDebugActive(false);      
+        setExpandedItems([]);
     }
 
 
@@ -494,7 +431,7 @@ export default function DebugTreeView({ yasgui }) {
 
   const renderTree = (node) => (
     (!node || !node.data || node.data.nodeId === undefined) ? null :
-      <StyledTreeItem itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} nodeId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} time={node.data.startTime} responseItemCount="15">
+      <StyledTreeItem nodeId={node.data.nodeId.toString()} itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} queryId={node.data.queryId.toString()} callId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} time={node.data.startTime} responseItemCount="15">
           {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null}
       </StyledTreeItem>
   );
