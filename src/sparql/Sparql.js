@@ -124,13 +124,13 @@ function Sparql() {
           </Accordion>
         </Col>
 
-        <Col xl={9} lg={8} md={7} sm={12} style={{position: "inherit"}}>
+        <Col xl={6} lg={5} md={4} sm={12} style={{position: "inherit"}}>
           <Yasgui ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
         </Col>    
-      </Row>  
-      <div className="debugTreeComponent">
+        <Col xl={3} lg={3} md={3} sm={12}>
           <DebugTreeView yasgui={yasgui}/>
-      </div>
+        </Col>
+      </Row>  
     </Container>
     
   );

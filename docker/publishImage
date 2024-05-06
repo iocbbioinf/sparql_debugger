@@ -1,0 +1,7 @@
+sudo docker build \
+-f ./docker/Dockerfile \
+-t idsmreactdebugger:$1 .
+
+sudo docker image tag idsmdebugger:$1 registry.gitlab.com/marekmoosuochb/testrepo/idsmreactdebugger:$1
+
+sudo docker push registry.gitlab.com/marekmoosuochb/testrepo/idsmreactdebugger:$1

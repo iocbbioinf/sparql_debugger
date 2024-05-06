@@ -167,6 +167,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     url,
     time,
     responseItemCount,
+    httpStatus,
     ...other
   } = props;
 
@@ -221,23 +222,28 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             <Box sx={{ mr: 1 }}>
               <StyledDoneRoundedIcon style={{ backgroundColor: '#007800', color: '#ffffff', borderRadius: '50%' }} />
             </Box>
+
+            <Tooltip title='HTTP status'>
+              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                {httpStatus}
+              </Typography>
+            </Tooltip>
+
+
             <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
                 <Link href={url} target="_blank" rel="noopener noreferrer">
                 {url}
                 </Link>                          
             </Typography> 
 
-            <Tooltip title='Time'>
-              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-                {time}
-              </Typography>
-            </Tooltip>
+            {responseItemCount && (
+              <Tooltip title='Response Item Count'>
+                <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                  {responseItemCount}
+                </Typography>
+              </Tooltip>
+            )}
 
-            <Tooltip title='Response Item Count'>
-              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-                {responseItemCount}
-              </Typography>
-            </Tooltip>
 
             <Box color="inherit" sx={{ mr: 1 }} >
               <ReqRespIconButon queryId={queryId} callId={callId} isRequest={true}/>
@@ -269,19 +275,31 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
             <Box sx={{ mr: 1 }}>
               <StyledErrorIcon style={{ color: '#aa0000'}}/>
             </Box>
+
+            <Tooltip title='HTTP status'>
+              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                {httpStatus}
+              </Typography>
+            </Tooltip>
+
             <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
               <Link href={url} target="_blank" rel="noopener noreferrer">
                 {url}
               </Link>                          
             </Typography> 
-            <Tooltip title='Time'>
-              <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-                {time}
-              </Typography>
-            </Tooltip>
+
+            {responseItemCount && (
+              <Tooltip title='Response Item Count'>
+                <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                  {responseItemCount}
+                </Typography>
+              </Tooltip>
+            )}
+            
             <Box color="inherit" sx={{ mr: 1 }} >
               <ReqRespIconButon queryId={queryId} callId={callId} isRequest={true}/>
             </Box>
+            
             <Box color="inherit" sx={{ mr: 1 }} >
               <ReqRespIconButon queryId={queryId} callId={callId} isRequest={false} isErr={true}/>
             </Box>
@@ -431,7 +449,7 @@ export default function DebugTreeView({ yasgui }) {
 
   const renderTree = (node) => (
     (!node || !node.data || node.data.nodeId === undefined) ? null :
-      <StyledTreeItem nodeId={node.data.nodeId.toString()} itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} queryId={node.data.queryId.toString()} callId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} time={node.data.startTime} responseItemCount="15">
+      <StyledTreeItem nodeId={node.data.nodeId.toString()} itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} queryId={node.data.queryId.toString()} callId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} time={node.data.startTime} httpStatus={node.data.httpStatus}>
           {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null}
       </StyledTreeItem>
   );
