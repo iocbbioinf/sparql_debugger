@@ -153,6 +153,27 @@ const ReqRespIconButon = ({ queryId, callId, isRequest }) => {
   )
 }
 
+function durationToString(durationInMillis) {
+
+  if(durationInMillis) {
+    const seconds = Math.floor((durationInMillis / 1000) % 60);
+    const minutes = Math.floor((durationInMillis / (1000 * 60)) % 60);
+    const hours = Math.floor(durationInMillis / (1000 * 60 * 60));
+  
+    let formattedDuration = `${seconds}s`; 
+    if (minutes > 0 || hours > 0) {
+      formattedDuration = `${minutes}m ` + formattedDuration; 
+    }
+    if (hours > 0) {
+      formattedDuration = `${hours}h ` + formattedDuration; 
+    }
+  
+    return formattedDuration;  
+  } 
+
+  return ""
+  
+}
 
 const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
   const theme = useTheme();
@@ -165,7 +186,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     callId,
     state,
     url,
-    time,
+    duration,
     responseItemCount,
     httpStatus,
     ...other
@@ -236,6 +257,12 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
                 </Link>                          
             </Typography> 
 
+            <Tooltip title='Duration'>
+                <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                  {duration}
+                </Typography>
+              </Tooltip>
+
             {responseItemCount && (
               <Tooltip title='Response Item Count'>
                 <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
@@ -287,14 +314,12 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
                 {url}
               </Link>                          
             </Typography> 
-
-            {responseItemCount && (
-              <Tooltip title='Response Item Count'>
+            
+            <Tooltip title='Duration'>
                 <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
-                  {responseItemCount}
+                  {duration}
                 </Typography>
-              </Tooltip>
-            )}
+            </Tooltip>
             
             <Box color="inherit" sx={{ mr: 1 }} >
               <ReqRespIconButon queryId={queryId} callId={callId} isRequest={true}/>
@@ -449,7 +474,8 @@ export default function DebugTreeView({ yasgui }) {
 
   const renderTree = (node) => (
     (!node || !node.data || node.data.nodeId === undefined) ? null :
-      <StyledTreeItem nodeId={node.data.nodeId.toString()} itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} queryId={node.data.queryId.toString()} callId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} time={node.data.startTime} httpStatus={node.data.httpStatus}>
+      <StyledTreeItem nodeId={node.data.nodeId.toString()} itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} queryId={node.data.queryId.toString()} 
+        callId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} duration={durationToString(node.data.duration)} httpStatus={node.data.httpStatus}>
           {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null}
       </StyledTreeItem>
   );
