@@ -153,7 +153,7 @@ const ReqRespIconButon = ({ queryId, callId, isRequest }) => {
   )
 }
 
-function durationToString(durationInMillis) {
+function durationToString({ durationInMillis }) {
 
   if(durationInMillis) {
     const seconds = Math.floor((durationInMillis / 1000) % 60);
