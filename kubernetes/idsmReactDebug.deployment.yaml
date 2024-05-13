@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idsm-react-debug-deployment
+  namespace: idsm-elixir-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: idsm-react-debug
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: idsm-react-debug
+    spec:
+      securityContext: # Pod security context
+        fsGroupChangePolicy: OnRootMismatch
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: idsm-react-debug
+          image: registry.gitlab.com/marekmoosuochb/testrepo/idsmreactdebugger:12
+          securityContext: # Container security context
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "4"
+              memory: "8Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: idsm-react-debug
+  namespace: idsm-elixir-ns
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: idsm-react-debug
