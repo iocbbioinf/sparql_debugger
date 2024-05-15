@@ -89,16 +89,22 @@ const StyledTreeItem = React.forwardRef(({
     };
   
     return (
-      <StyledTreeItemRoot
+      <TreeItem
         label={
           <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0 }}>
             {getIconComponent()}
+            <Typography variant="body2" sx={{ ml: 1 }}>{httpStatus}</Typography>
             <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
               <Link href={url} target="_blank" rel="noopener noreferrer">{url}</Link>
             </Typography>
             <ReqRespIconButton queryId={queryId} callId={callId} isRequest={true} />
             {state !== PENDING_STATE && <ReqRespIconButton queryId={queryId} callId={callId} isRequest={false} />}
-            <Typography variant="body2" sx={{ ml: 1 }}>{httpStatus}</Typography>
+            
+            {duration && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                  {duration}
+            </Typography>
+            }
+
             {responseItemCount && <Typography variant="body2" sx={{ ml: 1 }}>{responseItemCount}</Typography>}
           </Box>
         }

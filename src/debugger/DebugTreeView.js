@@ -12,10 +12,9 @@ import { yasgui } from '../sparql/Yasgui.js'
 export default function DebugTreeView({ yasgui }) {
   const [treeData, setTreeData] = useState({});
   const [expandedItems, setExpandedItems] = useState([]);
-  const [debugActive, setDebugActive] = useState(false);
 
   const handleExecuteQuery = async () => {
-    if (!debugActive) {
+      unsubscribe();
       setTreeData({});
 
       const baseUrl = "http://idsm-debugger-test6.dyn.cloud.e-infra.cz/query"
@@ -25,13 +24,6 @@ export default function DebugTreeView({ yasgui }) {
       }
 
       subscribeToUpdates(params, setTreeData, setExpandedItems);
-      setDebugActive(true);
-
-    } else {
-      unsubscribe();
-      setTreeData({});
-      setDebugActive(false);
-    }
   };
 
   const renderTree = (node) => (
@@ -51,7 +43,7 @@ export default function DebugTreeView({ yasgui }) {
   return (
     <div>
       <Button variant="contained" onClick={handleExecuteQuery}>
-        {debugActive ? 'Stop Debugging' : 'Start Debugging'}
+        {'Debug'}
       </Button>
       <TreeView
         aria-label="debug-tree"

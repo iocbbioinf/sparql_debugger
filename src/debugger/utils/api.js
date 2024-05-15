@@ -15,7 +15,7 @@ export const subscribeToUpdates = (params, setTreeData, setExpandedItems) => {
 
   console.log(fullUrl);
 
-  const eventSource = new EventSource(fullUrl);
+  eventSource = new EventSource(fullUrl);
 
   eventSource.onmessage = function (event) {
     console.log("New event from server:", event.data);
@@ -56,13 +56,21 @@ export const durationToString = (durationInMillis) => {
     const minutes = Math.floor((durationInMillis / (1000 * 60)) % 60);
     const hours = Math.floor(durationInMillis / (1000 * 60 * 60));
 
-    let formattedDuration = `${seconds}s`;
+    let formattedDuration = '';
+
+    if(seconds > 0 || minutes > 0 || hours > 0) {
+      formattedDuration = `${seconds}s`;
+    } else {
+      formattedDuration = `${durationInMillis}ms`;
+    }    
+
+
     if (minutes > 0 || hours > 0) {
       formattedDuration = `${minutes}m ` + formattedDuration;
     }
     if (hours > 0) {
       formattedDuration = `${hours}h ` + formattedDuration;
-    }
+    }        
 
     return formattedDuration;
   }
