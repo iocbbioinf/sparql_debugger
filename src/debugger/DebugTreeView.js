@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TreeView } from '@mui/x-tree-view/TreeView';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import Button from '@mui/material/Button';
 import StyledTreeItem from './StyledTreeItem';
 import { subscribeToUpdates, unsubscribe, durationToString } from './utils/api';
 
-import { yasgui } from '../sparql/Yasgui.js'
 
-
-export default function DebugTreeView({ yasgui }) {
+const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
   const [treeData, setTreeData] = useState({});
   const [expandedItems, setExpandedItems] = useState([]);
+
+  useImperativeHandle(ref, () => ({
+    handleExecuteQuery
+  }));
 
   const handleExecuteQuery = async () => {
       unsubscribe();
       setTreeData({});
 
-      const baseUrl = "http://idsm-debugger-test6.dyn.cloud.e-infra.cz/query"
       const params = {
-        endpoint: `${yasgui.current.getCurrentEndpoint()}`,
-        query: `${yasgui.current.getCurrentQuery()}`
+        endpoint: `${endpoint}`,
+        query: `${query}`
       }
 
       subscribeToUpdates(params, setTreeData, setExpandedItems);
@@ -35,25 +35,32 @@ export default function DebugTreeView({ yasgui }) {
   );
 
   useEffect(() => {
+    const params = { endpoint, query };
+
+    const updateTreeData = (newTreeData) => {
+      setTreeData(newTreeData);
+    };
+
+    subscribeToUpdates(params, updateTreeData, setExpandedItems);
+
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [endpoint, query]);
 
   return (
     <div>
-      <Button variant="contained" onClick={handleExecuteQuery}>
-        {'Debug'}
-      </Button>
       <TreeView
         aria-label="debug-tree"
         expanded={expandedItems}
         defaultCollapseIcon={<ArrowDropDownIcon />}
         defaultExpandIcon={<ArrowRightIcon />}
-        sx={{ width: '100%', maxWidth: 800, overflowY: 'auto' }}
+        sx={{ ...treeStyles, overflowY: 'auto' }}
       >
         {treeData.root && renderTree(treeData.root)}
       </TreeView>
     </div>
   );
-}
+});
+
+export default DebugTreeView;
