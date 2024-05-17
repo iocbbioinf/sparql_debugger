@@ -4,6 +4,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import StyledTreeItem from './StyledTreeItem';
 import { subscribeToUpdates, unsubscribe, durationToString } from './utils/api';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
 const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
@@ -49,6 +50,7 @@ const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
   }, [endpoint, query]);
 
   return (
+    
     <div>
       <TreeView
         aria-label="debug-tree"
