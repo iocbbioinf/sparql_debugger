@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { DebugTreeView } from "sparqldebugtree"; 
+import DebugTreeView from "./debug/DebugTreeView"; 
 import { Button, Container, Box, Typography, AppBar, Toolbar, CssBaseline, Paper } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles'; 
 
