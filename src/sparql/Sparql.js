@@ -13,7 +13,7 @@ import { servletBase } from "../config";
 import { endpoints, defaultEndpoint, defaultQuery } from "./config";
 import { demoQueries } from "./demos";
 
-import IdsmDebugTreeView from "../debugger/IdsmDebugTreeView.js"
+import IdsmDebugTreeView from "../IdsmDebugTreeView.js"
 
 
 import "./Sparql.scss";

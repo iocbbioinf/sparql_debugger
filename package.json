@@ -31,6 +31,9 @@
     "react-scripts": "5.0.1",
     "react-select": "^5.7.4",
     "react-useanimations": "^2.10.0",
+    "reacttmpcomponent": "^1.0.0",
+    "sparqldebugtree": "^1.0.7",
+    "tmpmycomponentlibrary": "^1.0.2",
     "web-vitals": "^2.1.0"
   },
   "scripts": {

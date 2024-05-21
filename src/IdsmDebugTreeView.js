@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import DebugTreeView from './DebugTreeView'; 
+import { DebugTreeView } from "sparqldebugtree"; 
 import { Button, Container, Box, Typography, AppBar, Toolbar, CssBaseline, Paper } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles'; 
-import { yasgui } from '../sparql/Yasgui.js';
 
 const theme = createTheme({
   palette: {
@@ -71,6 +70,7 @@ export default function IdsmDebugTreeView({ yasgui }) {
           </Button>
         </Box>
         <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
+          
           <DebugTreeView
             ref={debugTreeViewRef}
             endpoint={endpoint}
