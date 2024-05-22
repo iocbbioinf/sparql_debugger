@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import DebugTreeView from "./debug/DebugTreeView"; 
+import CustomContentTreeView from "./debug/DebugTreeViewNew"; 
 import { Button, Container, Box, Typography, AppBar, Toolbar, CssBaseline, Paper } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles'; 
 
@@ -69,14 +69,8 @@ export default function IdsmDebugTreeView({ yasgui }) {
             Debug
           </Button>
         </Box>
-        <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
-          
-          <DebugTreeView
-            ref={debugTreeViewRef}
-            endpoint={endpoint}
-            query={query}
-            treeStyles={{ width: '100%', maxWidth: 800 }}
-          />
+        <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>          
+          <CustomContentTreeView/>
         </Paper>
       </Container>
     </ThemeProvider>

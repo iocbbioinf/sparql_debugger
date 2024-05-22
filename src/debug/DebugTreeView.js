@@ -1,11 +1,9 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { TreeView } from '@mui/x-tree-view/TreeView';
+import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import StyledTreeItem from './StyledTreeItem';
 import { subscribeToUpdates, unsubscribe, durationToString } from './utils/api';
-
-import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -13,8 +11,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
   const [treeData, setTreeData] = useState({});
   const [expandedItems, setExpandedItems] = useState([]);
-
-  const apiRef = useTreeViewApiRef();
 
 
   useImperativeHandle(ref, () => ({
@@ -39,7 +35,6 @@ const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
 
       subscribeToUpdates(params, setTreeData, setExpandedItems);
 
-      apiRef.current.setItemExpansion('1', true);      
   };
 
   const renderTree = (node) => (
@@ -61,16 +56,15 @@ const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
   return (
     
     <div>
-      <TreeView
+      <RichTreeView
         aria-label="debug-tree"
-        expanded={expandedItems}
-        onExpandedItemsChange={handleExpandedItemsChange}        
         defaultCollapseIcon={<ArrowDropDownIcon />}
         defaultExpandIcon={<ArrowRightIcon />}
+        slots={{ item: StyledTreeItem }}
         sx={{ ...treeStyles, overflowY: 'auto' }}
       >
         {treeData.root && renderTree(treeData.root)}
-      </TreeView>
+      </RichTreeView>
     </div>
   );
 });
