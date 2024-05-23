@@ -116,3 +116,10 @@ function refreshTree(treeData, newNode, setExpandedItems) {
     return { root: { data: newNode } };
   }
 }
+
+function refreshRenderTree(treeRenderData) {
+
+
+  
+
+}
