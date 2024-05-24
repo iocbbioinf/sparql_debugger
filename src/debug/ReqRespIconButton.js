@@ -10,7 +10,8 @@ function ReqRespIconButton({ queryId, callId, isRequest }) {
   const [open, setOpen] = useState(false);
   const [fileContent, setFileContent] = useState('');
 
-  const handleOpen = async () => {
+  const handleOpen = async (event) => {
+    event.stopPropagation();
     const response = await fetchFileContent(queryId, callId, isRequest);
     setFileContent(response);
     setOpen(true);

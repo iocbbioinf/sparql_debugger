@@ -70,7 +70,7 @@ export default function IdsmDebugTreeView({ yasgui }) {
           </Button>
         </Box>
         <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>          
-          <CustomContentTreeView/>
+          <CustomContentTreeView endpoint={endpoint} query={query} ref={debugTreeViewRef}/>
         </Paper>
       </Container>
     </ThemeProvider>

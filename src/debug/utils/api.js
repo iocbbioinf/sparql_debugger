@@ -4,7 +4,7 @@ const baseUrl = "http://idsm-debugger-test6.dyn.cloud.e-infra.cz";
 
 let eventSource = null;
 
-export const subscribeToUpdates = (params, setTreeData, setExpandedItems) => {
+export const subscribeToUpdates = (params, treeData, setTreeData, setRenderData) => {
   const encodedParams = Object.keys(params)
     .map((key) => {
       return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
@@ -21,8 +21,14 @@ export const subscribeToUpdates = (params, setTreeData, setExpandedItems) => {
     console.log("New event from server:", event.data);
 
     setTreeData((prevState) =>
-      refreshTree(prevState, JSON.parse(event.data), setExpandedItems)
+      refreshTree(prevState, JSON.parse(event.data))
     );
+
+    setTreeData((prevState) => {
+      setRenderData([refreshRenderTree(prevState)]);
+      return prevState;
+    });
+
   };
 
   eventSource.onerror = function (err) {
@@ -78,7 +84,7 @@ export const durationToString = (durationInMillis) => {
   return "";
 };
 
-function refreshTree(treeData, newNode, setExpandedItems) {
+function refreshTree(treeData, newNode) {
   var updated = false;
 
   function refreshTreeRek(node) {
@@ -96,7 +102,6 @@ function refreshTree(treeData, newNode, setExpandedItems) {
     }
 
     if (updated === false && node.data.nodeId === newNode.parentNodeId) {
-      setExpandedItems((oldState) => [...oldState, newNode.nodeId.toString()]);
       result = {
         data: { ...node.data },
         children: [...(node.children ? node.children : []), { data: newNode }],
@@ -112,14 +117,23 @@ function refreshTree(treeData, newNode, setExpandedItems) {
     var result = { root: refreshTreeRek(treeData.root) };
     return result;
   } else {
-    setExpandedItems((oldState) => [...oldState, newNode.nodeId.toString()]);
     return { root: { data: newNode } };
   }
 }
 
-function refreshRenderTree(treeRenderData) {
+function refreshRenderTree(treeData) {
 
+  if (!treeData || !Object.keys(treeData).length ) return [];
 
-  
+  if (treeData.root) {
+    return refreshRenderTree(treeData.root)
+  }
 
+  const result = {
+    id: treeData.data.nodeId,
+    label: JSON.stringify(treeData.data),
+    children: treeData.children ? treeData.children.map((child) => refreshRenderTree(child)) : []
+  }
+
+  return result;
 }

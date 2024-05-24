@@ -106,7 +106,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
               {getIconComponent()}
               <Typography variant="body2" sx={{ ml: 1 }}>{nodeContent.httpStatus}</Typography>
               <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
-                <Link href={nodeContent.url} target="_blank" rel="noopener noreferrer">{nodeContent.url}</Link>
+                <Link href={nodeContent.endpoint} target="_blank" rel="noopener noreferrer">{nodeContent.endpoint}</Link>
               </Typography>
               <ReqRespIconButton queryId={nodeContent.queryId} callId={nodeContent.callId} isRequest={true} />
               {nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} callId={nodeContent.callId} isRequest={false} />}
@@ -131,7 +131,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
 
     const [treeData, setTreeData] = useState({});
-    const [treeRenderData, setTreeRenderData] = useState({});
+    const [treeRenderData, setTreeRenderData] = useState([]);
 
     useImperativeHandle(ref, () => ({
       handleExecuteQuery
@@ -146,7 +146,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         query: `${query}`
       }
     
-      subscribeToUpdates(params, setTreeData, setExpandedItems);
+      subscribeToUpdates(params, treeData, setTreeData, setTreeRenderData);
     
     };
     
@@ -164,3 +164,4 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
 });
 
 export default DebugTreeView;
+
