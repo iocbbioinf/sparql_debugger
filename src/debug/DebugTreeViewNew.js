@@ -132,10 +132,15 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
 
     const [treeData, setTreeData] = useState({});
     const [treeRenderData, setTreeRenderData] = useState([]);
+    const [expandedItems, setExpandedItems] = useState([]);
 
     useImperativeHandle(ref, () => ({
       handleExecuteQuery
     }));
+
+    const handleExpandedItemsChange = (event, itemIds) => {
+      setExpandedItems(itemIds);
+    };  
     
     const handleExecuteQuery = async () => {
       unsubscribe();
@@ -146,7 +151,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         query: `${query}`
       }
     
-      subscribeToUpdates(params, treeData, setTreeData, setTreeRenderData);
+      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems);
     
     };
     
@@ -155,7 +160,8 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         <RichTreeView
           aria-label="icon expansion"
           sx={{ position: 'relative' }}
-          defaultExpandedItems={['1']}
+          expandedItems={expandedItems}
+          onExpandedItemsChange={handleExpandedItemsChange}          
           items={treeRenderData}
           slots={{ item: CustomTreeItem }}
         />
