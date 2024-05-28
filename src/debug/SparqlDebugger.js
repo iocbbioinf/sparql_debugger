@@ -1,10 +1,8 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 
-import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -21,6 +19,13 @@ import { TreeItem2Icon } from '@mui/x-tree-view/TreeItem2Icon';
 import { TreeItem2Provider } from '@mui/x-tree-view/TreeItem2Provider';
 import { unstable_useTreeItem2 as useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';
 import { subscribeToUpdates, unsubscribe, durationToString } from './utils/api';
+
+import { Button, Container, Box, Typography, AppBar, Toolbar, CssBaseline, Paper } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles'; 
+
+import BugReportIcon from '@mui/icons-material/BugReport';
+import CancelIcon from '@mui/icons-material/Cancel';
+
   
 
 const ITEMS = [
@@ -128,7 +133,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   });
   
 
-  const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
+  const DebugTreeView = forwardRef(({ endpoint, query, setQueryIsRunning}, ref) => {
 
     const [treeData, setTreeData] = useState({});
     const [treeRenderData, setTreeRenderData] = useState([]);
@@ -151,7 +156,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         query: `${query}`
       }
     
-      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems);
+      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems, setQueryIsRunning);
     
     };
     
@@ -169,5 +174,41 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-export default DebugTreeView;
+export default function SparqlDebugger({ theme, query, endpoint }) {
+  const debugTreeViewRef = useRef(null);
+  const [queryIsRunning, setQueryIsRunning] = useState(false)
+
+  const handleDebugClick = () => {
+    if(queryIsRunning) {
+      debugTreeViewRef.current.handleStopQuery()
+      setQueryIsRunning(false)
+    } else {
+      setTimeout(() => {
+        if (debugTreeViewRef.current) {
+          debugTreeViewRef.current.handleExecuteQuery();
+        }
+      }, 0);  
+      setQueryIsRunning(true)
+    }
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container maxWidth="md">
+        <Box my={4} textAlign="center">
+          <Button variant="contained" onClick={handleDebugClick}
+              color={queryIsRunning ?  'error' : 'success'}
+              startIcon={queryIsRunning ?  <CancelIcon /> : <BugReportIcon />}
+            >
+            {queryIsRunning ? 'Cancel' : 'Debug'}
+          </Button>
+        </Box>
+        <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>          
+          <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} ref={debugTreeViewRef}/>
+        </Paper>
+      </Container>
+    </ThemeProvider>
+  );
+}
 

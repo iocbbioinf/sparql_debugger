@@ -1,10 +1,11 @@
 import axios from "axios";
+import {PENDING_STATE} from "./constants"
 
 const baseUrl = "http://idsm-debugger-test6.dyn.cloud.e-infra.cz";
 
 let eventSource = null;
 
-export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpandedItems) => {
+export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpandedItems, setQueryIsRunning) => {
   const encodedParams = Object.keys(params)
     .map((key) => {
       return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
@@ -23,6 +24,13 @@ export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpand
     setTreeData((prevState) =>
       refreshTree(prevState, JSON.parse(event.data), setExpandedItems)
     );
+
+    setTreeData((prevState) => {
+      if(prevState.root.data.state !== PENDING_STATE) {
+        setQueryIsRunning(false);
+      }
+      return prevState;
+    });
 
     setTreeData((prevState) => {
       setRenderData([refreshRenderTree(prevState)]);

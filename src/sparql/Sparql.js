@@ -13,7 +13,7 @@ import { servletBase } from "../config";
 import { endpoints, defaultEndpoint, defaultQuery } from "./config";
 import { demoQueries } from "./demos";
 
-import IdsmDebugTreeView from "../IdsmDebugTreeView.js"
+import IdsmSparqlDebugger from "../IdsmSparqlDebugger.js"
 
 
 import "./Sparql.scss";
@@ -128,7 +128,7 @@ function Sparql() {
           <Yasgui ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
         </Col>    
         <Col xl={3} lg={3} md={3} sm={12}>
-          <IdsmDebugTreeView yasgui={yasgui}/>
+          <IdsmSparqlDebugger yasgui={yasgui}/>
         </Col>
       </Row>  
     </Container>
