@@ -113,8 +113,8 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
               <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
                 <Link href={nodeContent.endpoint} target="_blank" rel="noopener noreferrer">{nodeContent.endpoint}</Link>
               </Typography>
-              <ReqRespIconButton queryId={nodeContent.queryId} callId={nodeContent.callId} isRequest={true} />
-              {nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} callId={nodeContent.callId} isRequest={false} />}
+              <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} />
+              {nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={false} />}
               
               {nodeContent.duration && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
                     {nodeContent.duration}
@@ -174,7 +174,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-export default function SparqlDebugger({ theme, query, endpoint }) {
+export default function SparqlDebugger({ theme, query, endpoint, updateQueryInfo }) {
   const debugTreeViewRef = useRef(null);
   const [queryIsRunning, setQueryIsRunning] = useState(false)
 
@@ -183,6 +183,7 @@ export default function SparqlDebugger({ theme, query, endpoint }) {
       debugTreeViewRef.current.handleStopQuery()
       setQueryIsRunning(false)
     } else {
+      updateQueryInfo()
       setTimeout(() => {
         if (debugTreeViewRef.current) {
           debugTreeViewRef.current.handleExecuteQuery();

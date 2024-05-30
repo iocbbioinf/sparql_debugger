@@ -6,15 +6,15 @@ import JSONPretty from 'react-json-pretty';
 import { fetchFileContent } from './utils/api';
 import modalStyle from './styles/modalStyle'; 
 
-function ReqRespIconButton({ queryId, callId, isRequest }) {
+function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   const [open, setOpen] = useState(false);
   const [fileContent, setFileContent] = useState('');
 
-  const handleOpen = async (event) => {
-    event.stopPropagation();
-    const response = await fetchFileContent(queryId, callId, isRequest);
+  const handleOpen =  (event) => {
+    const response = fetchFileContent(queryId, nodeId, isRequest);
     setFileContent(response);
     setOpen(true);
+    event.stopPropagation();
   };
 
   const handleClose = () => {
