@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import CustomContentTreeView from "./debug/SparqlDebugger"; 
-import { Button, Container, Box, Typography, AppBar, Toolbar, CssBaseline, Paper } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles'; 
+import { createTheme } from '@mui/material/styles'; 
 
-import BugReportIcon from '@mui/icons-material/BugReport';
-import CancelIcon from '@mui/icons-material/Cancel';
-import SparqlDebugger from './debug/SparqlDebugger';
+import { SparqlDebugger } from 'sparqldebugtree';
 
 
 export default function IdsmSparqlDebugger({ yasgui}) {
