@@ -1,7 +1,6 @@
 import axios from "axios";
 import {PENDING_STATE} from "./constants"
 
-const baseUrl = "http://idsm-debugger-test6.dyn.cloud.e-infra.cz";
 
 let eventSource = null;
 
@@ -49,18 +48,6 @@ export const unsubscribe = () => {
   if (eventSource) {
     eventSource.close();
     eventSource = null;
-  }
-};
-
-export const fetchFileContent = async (queryId, callId, isRequest) => {
-  try {
-    const reqResp = isRequest ? "request" : "response";
-    const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
-    const response = await axios.get(fullUrl);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching file content:", error);
-    return "File not found or could not be loaded.";
   }
 };
 

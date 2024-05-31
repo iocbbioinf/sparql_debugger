@@ -3,16 +3,29 @@ import { IconButton, Tooltip, Modal, Box } from '@mui/material';
 import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
 import JSONPretty from 'react-json-pretty';
-import { fetchFileContent } from './utils/api';
 import modalStyle from './styles/modalStyle'; 
+
+import axios from "axios";
+import {baseUrl} from "./utils/constants"
 
 function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   const [open, setOpen] = useState(false);
   const [fileContent, setFileContent] = useState('');
 
+
+  const fetchFileContent = (queryId, callId, isRequest) => {
+    try {
+      const reqResp = isRequest ? "request" : "response";
+      const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
+      axios.get(fullUrl).then(response => {setFileContent(response.data)})
+    } catch (error) {
+      console.error("Error fetching file content:", error);
+      return "File not found or could not be loaded.";
+    }
+  };
+  
   const handleOpen =  (event) => {
-    const response = fetchFileContent(queryId, nodeId, isRequest);
-    setFileContent(response);
+    fetchFileContent(queryId, nodeId, isRequest);
     setOpen(true);
     event.stopPropagation();
   };
