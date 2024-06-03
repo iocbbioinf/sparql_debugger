@@ -33,7 +33,7 @@
     "react-select": "^5.7.4",
     "react-useanimations": "^2.10.0",
     "reacttmpcomponent": "^1.0.0",
-    "sparqldebugtree": "^1.1.2",
+    "sparqldebugtree": "^1.1.9",
     "web-vitals": "^2.1.0"
   },
   "scripts": {

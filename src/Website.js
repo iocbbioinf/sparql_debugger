@@ -1,15 +1,9 @@
 import React from "react";
 import { Suspense } from "react";
-import { Navbar, Nav, NavbarBrand, Container, Row, Col, Modal, Image, Button, Spinner } from "react-bootstrap";
-import { BrowserRouter, Routes, Route, NavLink, useLocation } from "react-router-dom";
-import { LinkContainer } from "react-router-bootstrap"
-import { FontAwesomeIcon as Icon } from "@fortawesome/react-fontawesome";
-import { faAtom, faNetworkWired, faDatabase, faHome} from "@fortawesome/free-solid-svg-icons";
+import { Container, Row, Col, Modal, Image, Button, Spinner } from "react-bootstrap";
 
-import ErrorBoundary from "./ErrorBoundary.js"
 import { initMatomo } from "./matomo.js"
 
-import idsmLogo from "./logo-idsm.svg";
 import elixirLogo from "./logo-elixir.png";
 import uochbLogo from "./logo-uochb.png";
 
@@ -111,28 +105,6 @@ function Contacts() {
 }
 
 
-function Chemweb() {
-  const { search } = useLocation();
-
-  const style = {
-    position: "fixed",
-    top: "60px",
-    left: 0,
-    bottom: 0,
-    right: 0,
-    width: "100%",
-    height: "calc(100% - 60px)",
-    border: "none",
-    margin: 0,
-    padding: 0,
-    overflow: "hidden",
-    zIndex: 1
-  };
-  
-  return (
-    <iframe src={"/chemweb/Chemweb.html"+search} title="chemweb" style={style}/>
-  );
-}
 
 
 function Website() {
@@ -140,36 +112,21 @@ function Website() {
     initMatomo();
   }, []);
 
-  return (
-    <BrowserRouter>
-      <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark px-3" style={{zIndex:2}}>
-        <LinkContainer to="/"><NavbarBrand><img src={idsmLogo} height="32px" alt="IDSM"/></NavbarBrand></LinkContainer>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
-        <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav activeKey={window.location.pathname} className="mr-auto">
-            <Nav.Link to="/sachem" as={NavLink}><Icon icon={faAtom}/> Sachem GUI</Nav.Link>
-            <Nav.Link to="/sparql" as={NavLink}><Icon icon={faNetworkWired}/> SPARQL GUI</Nav.Link>
-            <Nav.Link to="/chemweb" as={NavLink}><Icon icon={faDatabase}/> ChemWebRDF</Nav.Link>
-          </Nav>
-          <Nav className="ms-auto">
-            <Nav.Link target="_blank" rel="noreferrer" href="https://bioinformatics.group.uochb.cz/en">
-              <Icon icon={faHome}/> Bioinformatics @ IOCB Prague
-            </Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+  React.useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+  }, []);
+  
 
+  return (
+    <div>
       <div className="page">
-        <ErrorBoundary>
-          <Suspense fallback={<Spinner animation="border" variant="primary" className="waiting d-block m-auto"/>}>
-            <Routes>
-              <Route path="/sachem/*" element={<Sachem/>}/>
-              <Route path="/sparql/" element={<Sparql/>}/>
-              <Route path="/chemweb/" element={<Chemweb/>}/>
-              <Route path="/" element={<Home/>}/>
-            </Routes>
-          </Suspense>
-        </ErrorBoundary>
+        <Sparql/>
       </div>
 
       <Container fluid className="pt-1 mt-5 footer">
@@ -192,8 +149,9 @@ function Website() {
             <a target="_blank" rel="noreferrer" href="https://www.elixir-czech.cz/" className="d-block p-1"><Image src={elixirLogo} height={40}/></a>
           </Col>
         </Row>
-      </Container>
-    </BrowserRouter>
+      </Container>      
+    </div>
+
   );
 }
 

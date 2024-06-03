@@ -36,6 +36,16 @@ function Sparql() {
     trackPageView();
   }, []);
 
+  React.useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+  }, []);
+
   const [statusIsOpen, setStatusIsOpen] = React.useState(false);
 
   const yasgui = React.useRef(null);

@@ -110,27 +110,7 @@ function HomeCarousel() {
 
 function CardsRow() {
   return (
-    <Row md={3}>
-      <Col className="text-center d-flex flex-column mt-5">
-        <LinkContainer to="/sachem">
-          <Button variant="link">
-            <Image src={sachemIcon} width={140} height={140} roundedCircle />
-            <h2>Sachem GUI</h2>
-          </Button>
-        </LinkContainer>
-        <p className="flex-grow-1">
-          Sachem is a high-performance chemical cartridge for fingerprint-guided
-          substructure and similarity search. Sachem GUI allows quick access to
-          this functionality on our Sachem installation. Indexed databases
-          include up-to-date versions of PubChem and ChEMBL.
-        </p>
-        <LinkContainer to="/sachem">
-          <Button variant="secondary">
-            Search for compounds <Icon icon={faAngleDoubleRight} />
-          </Button>
-        </LinkContainer>
-      </Col>
-
+    <Row md={1}>
       <Col className="text-center d-flex flex-column mt-5">
         <LinkContainer to="/sparql">
           <Button variant="link">
@@ -151,21 +131,6 @@ function CardsRow() {
         </LinkContainer>
       </Col>
 
-      <Col className="text-center d-flex flex-column mt-5">
-        <Button href="/chemweb" variant="link">
-          <Image src={chemwebIcon} width={140} height={140} roundedCircle />
-          <h2>ChemWebRDF</h2>
-        </Button>
-        <p className="flex-grow-1">
-          PubChem RDF data exposed and searchable through an interoperable,
-          semantic interface, using a custom high-performance SPARQL endpoint
-          implementation. The service is still under development, but may
-          already be used for processing many complicated queries.
-        </p>
-        <Button href="/chemweb" variant="secondary">
-          ChemWebRDF app <Icon icon={faAngleDoubleRight} />
-        </Button>
-      </Col>
     </Row>
   );
 }
