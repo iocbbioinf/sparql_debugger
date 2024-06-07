@@ -1,5 +1,5 @@
 import axios from "axios";
-import {PENDING_STATE} from "./constants"
+import {PENDING_STATE, baseUrl} from "./constants"
 
 
 let eventSource = null;
@@ -11,6 +11,7 @@ export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpand
     })
     .join("&");
 
+    
   const fullUrl = `${baseUrl}/query?${encodedParams}`;
 
   console.log(fullUrl);
@@ -133,4 +134,22 @@ function refreshRenderTree(treeData) {
   }
 
   return result;
+}
+
+export const deleteQuery = (treeData) => {
+  if(treeData?.root?.data) {
+    const queryId = treeData.root.data.queryId;  
+    const fullUrl = `${baseUrl}/query/${queryId}/delete`;
+  
+    axios.post(fullUrl);
+  }
+}
+
+export const cancelQuery = (treeData) => {
+  if(treeData?.root?.data) {
+    const queryId = treeData.root.data.queryId;
+    const fullUrl = `${baseUrl}/query/${queryId}/cancel`;
+  
+    axios.post(fullUrl);
+  }
 }

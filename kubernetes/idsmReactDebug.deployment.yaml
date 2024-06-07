@@ -10,7 +10,7 @@ spec:
       app: idsm-react-debug
   strategy:
     type: RollingUpdate
-    rollingUpdate:
+    rollingUpdate:deleteQuery
       maxSurge: 1
       maxUnavailable: 1
   template:
