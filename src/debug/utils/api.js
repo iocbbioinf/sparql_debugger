@@ -1,5 +1,5 @@
 import axios from "axios";
-import {PENDING_STATE, baseUrl} from "./constants"
+import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl} from "./constants"
 import { v4 as uuidv4 } from "uuid";
 
 let eventSource = null;
@@ -152,12 +152,23 @@ function addBulkNodes(treeData) {
 
     const childMultiGroup = Object.values(childGroup).filter(x => x.length > 1);
   
-    const bulkChildrenNodes = Object.values(childMultiGroup).map(x => (
-      {
-        data: {nodeId: uuidv4(), size: x.length, endpoint: x[0].endpoint},
+    const bulkChildrenNodes = Object.values(childMultiGroup).map(x => {
+      var bulkState;
+      if(treeData.data.state != PENDING_STATE) {
+        if(x.every((child) => child.data.state == SUCCESS_STATE)) {
+          bulkState = SUCCESS_STATE;
+        } else {
+          bulkState = FAILURE_STATE;
+        }
+      } else {
+        bulkState = PENDING_STATE
+      }
+            
+      return {
+        data: {nodeId: uuidv4(), isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState}, 
         children: x.map((child) => addBulkNodes(child))
       }
-    ))  
+  })  
   
     const childSingleGroup = Object.values(childGroup).filter(x => x.length === 1).flat();
     const singleChildrenNodes = Object.values(childSingleGroup).map((child) => addBulkNodes(child));

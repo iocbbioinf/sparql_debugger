@@ -41,7 +41,7 @@ const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
     (!node || !node.data || node.data.nodeId === undefined) ? null :
       <StyledTreeItem nodeId={node.data.nodeId.toString()} itemID={node.data.nodeId.toString()} key={node.data.nodeId.toString()} queryId={node.data.queryId.toString()} 
         callId={node.data.nodeId.toString()} state={node.data.state} url={node.data.endpoint} duration={durationToString(node.data.duration)} httpStatus={node.data.httpStatus}>
-          {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null}
+          {Array.isArray(node.children) ? node.children.map((child) => renderTree(child)) : null} isBulk={bulkSize ? true : false}
       </StyledTreeItem>
   );
 

@@ -65,6 +65,8 @@ const StyledTreeItem = React.forwardRef(({
     duration,
     responseItemCount,
     httpStatus,
+    isBulk,
+    bulkSize,
     ...other
   }, ref) => {
     const theme = useTheme();
@@ -97,12 +99,16 @@ const StyledTreeItem = React.forwardRef(({
             <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
               <Link href={url} target="_blank" rel="noopener noreferrer">{url}</Link>
             </Typography>
-            <ReqRespIconButton queryId={queryId} callId={callId} isRequest={true} />
-            {state !== PENDING_STATE && <ReqRespIconButton queryId={queryId} callId={callId} isRequest={false} />}
+            {isBulk && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
+                  {bulkSize}
+              </Typography>
+            }
+            {!isBulk && <ReqRespIconButton queryId={queryId} callId={callId} isRequest={true} />}
+            {!isBulk && state !== PENDING_STATE && <ReqRespIconButton queryId={queryId} callId={callId} isRequest={false} />}
             
             {duration && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1 }}>
                   {duration}
-            </Typography>
+              </Typography>
             }
 
             {responseItemCount && <Typography variant="body2" sx={{ ml: 1 }}>{responseItemCount}</Typography>}

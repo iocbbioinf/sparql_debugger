@@ -106,17 +106,20 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
             <TreeItem2IconContainer {...getIconContainerProps()}>
               <TreeItem2Icon status={status} />
             </TreeItem2IconContainer>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0, backgroundColor: nodeContent.isBulk ? 'rgba(255, 165, 0, 0.2)' : 'transparent', borderRadius: '8px' }}>
               {getIconComponent()}
               <Typography variant="body2" sx={{ ml: 1 }}>{nodeContent.httpStatus}</Typography>
               <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
                 <Link href={nodeContent.endpoint} target="_blank" rel="noopener noreferrer">{nodeContent.endpoint}</Link>
               </Typography>
-              <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} />
-              {nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={false} />}
+              {nodeContent.isBulk && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1, pr: 1 }}>
+                  {nodeContent.bulkSize}
+              </Typography>
+              }
+              {!nodeContent.isBulk && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} />}
+              {!nodeContent.isBulk && nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={false} />}
               
-              {nodeContent.duration && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
+              {nodeContent.duration && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 1, pr: 1 }}>
                     {durationToString(nodeContent.duration)}
               </Typography>
               }
