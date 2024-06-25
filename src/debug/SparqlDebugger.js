@@ -8,7 +8,7 @@ import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import ErrorIcon from '@mui/icons-material/Error';
 import AnimLoadingComponent from './AnimLoadingComponent';
 import ReqRespIconButton from './ReqRespIconButton';
-import { PENDING_STATE, SUCCESS_STATE, FAILURE_STATE } from './utils/constants';
+import { PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl } from './utils/constants';
 import {
   TreeItem2Content,
   TreeItem2IconContainer,
@@ -107,13 +107,13 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
               <TreeItem2Icon status={status} />
             </TreeItem2IconContainer>
             <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0, backgroundColor: nodeContent.isBulk ? 'rgba(255, 165, 0, 0.2)' : 'transparent', borderRadius: '8px' }}>
-              {getIconComponent()}
+              {getIconComponent()}serverUrl
               <Typography variant="body2" sx={{ ml: 1 }}>{nodeContent.httpStatus}</Typography>
               <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
                 <Link href={nodeContent.endpoint} target="_blank" rel="noopener noreferrer">{nodeContent.endpoint}</Link>
               </Typography>
-              {nodeContent.isBulk && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', flexGrow: 0.1, pr: 1 }}>
-                  {nodeContent.bulkSize}
+              {nodeContent.isBulk && <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', pr: 4 }}>
+                  {nodeContent.bulkSize}x
               </Typography>
               }
               {!nodeContent.isBulk && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} />}
@@ -179,7 +179,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     };
 
     return (
-      <Box sx={{ minHeight: 180, flexGrow: 1, maxWidth: 400 }}>
+      <Box sx={{ minHeight: 90, flexGrow: 1, maxWidth: 400 }}>
         <RichTreeView
           aria-label="icon expansion"
           sx={{ position: 'relative' }}
@@ -192,9 +192,11 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo }) => {
+const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, serverUrl }) => {
   const debugTreeViewRef = useRef(null);
   const [queryIsRunning, setQueryIsRunning] = useState(false)
+
+  baseUrl = serverUrl;
 
   const handleDebugClick = () => {
     if(queryIsRunning) {
@@ -215,7 +217,7 @@ const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo }) => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="md">
-        <Box my={4} textAlign="center">
+        <Box my={2} textAlign="center">
           <Button variant="contained" onClick={handleDebugClick}
               color={queryIsRunning ?  'error' : 'success'}
               startIcon={queryIsRunning ?  <CancelIcon /> : <BugReportIcon />}
@@ -223,9 +225,7 @@ const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo }) => {
             {queryIsRunning ? 'Cancel' : 'Debug'}
           </Button>
         </Box>
-        <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>          
-          <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} ref={debugTreeViewRef}/>
-        </Paper>
+        <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} ref={debugTreeViewRef}/>
       </Container>
     </ThemeProvider>
   );
