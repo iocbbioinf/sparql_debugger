@@ -107,7 +107,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
               <TreeItem2Icon status={status} />
             </TreeItem2IconContainer>
             <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0, backgroundColor: nodeContent.isBulk ? 'rgba(255, 165, 0, 0.2)' : 'transparent', borderRadius: '8px' }}>
-              {getIconComponent()}serverUrl
+              {getIconComponent()}
               <Typography variant="body2" sx={{ ml: 1 }}>{nodeContent.httpStatus}</Typography>
               <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
                 <Link href={nodeContent.endpoint} target="_blank" rel="noopener noreferrer">{nodeContent.endpoint}</Link>
@@ -192,11 +192,9 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, serverUrl }) => {
+const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo }) => {
   const debugTreeViewRef = useRef(null);
   const [queryIsRunning, setQueryIsRunning] = useState(false)
-
-  baseUrl = serverUrl;
 
   const handleDebugClick = () => {
     if(queryIsRunning) {

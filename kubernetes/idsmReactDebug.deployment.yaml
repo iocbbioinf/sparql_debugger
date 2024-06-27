@@ -10,7 +10,7 @@ spec:
       app: idsm-react-debug
   strategy:
     type: RollingUpdate
-    rollingUpdate:deleteQuery
+    rollingUpdate:
       maxSurge: 1
       maxUnavailable: 1
   template:
@@ -25,7 +25,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: idsm-react-debug
-          image: registry.gitlab.com/marekmoosuochb/testrepo/idsmreactdebugger:22
+          image: registry.gitlab.com/marekmoosuochb/testrepo/idsmreactdebugger:25
           securityContext: # Container security context
             runAsUser: 1000
             allowPrivilegeEscalation: false

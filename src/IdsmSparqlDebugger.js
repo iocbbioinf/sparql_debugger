@@ -54,6 +54,6 @@ export default function IdsmSparqlDebugger({ yasgui}) {
   }, [yasgui]);
 
   return (
-    <SparqlDebugger theme={theme} query={query} endpoint={endpoint} updateQueryInfo={updateQueryInfo} serverUrl ="https://idsm-debugger-test6.dyn.cloud.e-infra.cz"/>
+    <SparqlDebugger theme={theme} query={query} endpoint={endpoint} updateQueryInfo={updateQueryInfo} />
   );
 }
