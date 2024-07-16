@@ -8,6 +8,8 @@ import modalStyle from './styles/modalStyle';
 import { baseUrl } from "./utils/constants";
 import JSONPretty from 'react-json-pretty';
 
+import axios from "axios";
+
 
 function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   const [open, setOpen] = useState(false);
@@ -17,22 +19,37 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   const PREVIEW_LENGTH = 2000; // Number of characters to show in preview
 
   const fetchPreviewContent = useCallback(async (queryId, callId, isRequest) => {
-    try {
-      const reqResp = isRequest ? "request" : "response";
-      const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
+    const reqResp = isRequest ? "request" : "response";
+    const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
 
+    try {
       const response = await fetch(fullUrl, {
         headers: {
+          'Accept-Encoding': 'gzip,deflate',
           'Range': `bytes=0-${PREVIEW_LENGTH - 1}`
         }
       });
-      
+
       const blob = await response.blob();
+      
       const text = await blob.text();
-      setFileContent(text);
+      setFileContent(text + "...");
     } catch (error) {
-      console.error("Error fetching file content:", error);
-      setFileContent("File not found or could not be loaded.");
+      try {
+        const response = await fetch(fullUrl, {
+          headers: {
+            'Accept-Encoding': 'gzip,deflate',
+          }
+        });
+  
+        const blob = await response.blob();
+        const text = await blob.text();
+        setFileContent(text.slice(0, PREVIEW_LENGTH) + "...");
+
+      } catch (error) {
+        console.error("Error fetching file content:", error);
+        setFileContent("File not found or could not be loaded.");  
+      }
     }
   }, []);
 
@@ -41,9 +58,14 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
       const reqResp = isRequest ? "request" : "response";
       const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
 
-      const response = await fetch(fullUrl);
+      const response = await fetch(fullUrl, {
+        headers: {
+          'Accept-Encoding': 'gzip,deflate'
+        }
+      });
       
       const blob = await response.blob();
+
       setFileBlob(blob);
 
       const fileName = `${queryId}_${nodeId}_${reqResp}.tmp`;
