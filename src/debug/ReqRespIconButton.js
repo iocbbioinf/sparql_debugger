@@ -16,7 +16,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   const [fileContent, setFileContent] = useState('');
   const [fileBlob, setFileBlob] = useState(null);
 
-  const PREVIEW_LENGTH = 2000; // Number of characters to show in preview
+  const PREVIEW_LENGTH = 4000; // Number of bytes to show in preview
 
   const fetchPreviewContent = useCallback(async (queryId, callId, isRequest) => {
     const reqResp = isRequest ? "request" : "response";
