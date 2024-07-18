@@ -126,14 +126,6 @@ function refreshTree(treeData, newNode, setExpandedItems) {
 var groupBy = function(xs, key) {
   return xs.reduce(function(rv, x) {
 
-    var obj = {
-      "0": [1, 2],
-      "1": [3, 4]
-    };
-    var arrays = Object.values(obj);
-    var a = arrays.flat();
-
-
     (rv[(x["data"])[key]] = rv[(x["data"])[key]] || []).push(x);
     return rv;
   }, {});

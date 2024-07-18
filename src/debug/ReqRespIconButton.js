@@ -2,13 +2,10 @@ import React, { useState, useCallback } from 'react';
 import { IconButton, Tooltip, Modal, Box, Button } from '@mui/material';
 import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
-import { send } from '@rpldy/sender';
 import { saveAs } from 'file-saver';
 import modalStyle from './styles/modalStyle'; 
 import { baseUrl } from "./utils/constants";
 import JSONPretty from 'react-json-pretty';
-
-import axios from "axios";
 
 
 function ReqRespIconButton({ queryId, nodeId, isRequest }) {
@@ -33,23 +30,16 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
       const blob = await response.blob();
       
       const text = await blob.text();
-      setFileContent(text + "...");
-    } catch (error) {
-      try {
-        const response = await fetch(fullUrl, {
-          headers: {
-            'Accept-Encoding': 'gzip,deflate',
-          }
-        });
-  
-        const blob = await response.blob();
-        const text = await blob.text();
-        setFileContent(text.slice(0, PREVIEW_LENGTH) + "...");
 
-      } catch (error) {
-        console.error("Error fetching file content:", error);
-        setFileContent("File not found or could not be loaded.");  
+      if(text.length >= PREVIEW_LENGTH - 1) {
+        setFileContent(text + "...");
+      } else {
+        setFileContent(text);
       }
+
+    } catch (error) {
+      console.error("Error fetching file content:", error);
+      setFileContent("File not found or could not be loaded.");  
     }
   }, []);
 
@@ -68,7 +58,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
 
       setFileBlob(blob);
 
-      const fileName = `${queryId}_${nodeId}_${reqResp}.tmp`;
+      const fileName = `${queryId}_${callId}_${reqResp}.tmp`;
       saveAs(blob, fileName);
 
     } catch (error) {
