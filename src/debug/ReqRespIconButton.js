@@ -8,15 +8,18 @@ import { baseUrl } from "./utils/constants";
 import JSONPretty from 'react-json-pretty';
 import DownloadIcon from '@mui/icons-material/Download';
 import './styles/debugStyles.css'; 
+import { getContentType } from './utils/api';
+
 
 function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   const [open, setOpen] = useState(false);
   const [fileContent, setFileContent] = useState('');
   const [fileBlob, setFileBlob] = useState(null);
+  const [contentType, setContentType] = useState(null);
 
   const PREVIEW_LENGTH = 2000;
 
-  const fetchPreviewContent = useCallback(async (queryId, callId, isRequest) => {
+  const fetchPreviewContent = useCallback(async (queryId, callId, isRequest, setContentType) => {
     const reqResp = isRequest ? "request" : "response";
     const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
 
@@ -32,6 +35,9 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
       
       const text = await blob.text();
 
+      const tmp = getContentType(text);
+      setContentType(getContentType(text));
+
       if(text.length >= PREVIEW_LENGTH - 1) {
         setFileContent(text + "...");
       } else {
@@ -44,7 +50,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
     }
   }, []);
 
-  const fetchFileContent = useCallback(async (queryId, callId, isRequest) => {
+  const fetchFileContent = useCallback(async (queryId, callId, isRequest, contentType) => {
     try {
       const reqResp = isRequest ? "request" : "response";
       const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
@@ -59,7 +65,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
 
       setFileBlob(blob);
 
-      const fileName = `${queryId}_${callId}_${reqResp}.tmp`;
+      const fileName = `${queryId}_${callId}_${reqResp}.${contentType}`;
       saveAs(blob, fileName);
 
     } catch (error) {
@@ -69,7 +75,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
 
 
   const handleOpen = (event) => {
-    fetchPreviewContent(queryId, nodeId, isRequest);
+    fetchPreviewContent(queryId, nodeId, isRequest, setContentType);
     setOpen(true);
     event.stopPropagation();
   };
@@ -80,7 +86,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   };
 
   const handleDownload = (event) => {
-    fetchFileContent(queryId, nodeId, isRequest);
+    fetchFileContent(queryId, nodeId, isRequest, contentType);
     event.stopPropagation();
   };
 

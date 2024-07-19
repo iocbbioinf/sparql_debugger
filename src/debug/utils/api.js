@@ -1,5 +1,5 @@
 import axios from "axios";
-import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl} from "./constants"
+import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl, HTML_SUFFIX, XML_SUFFIX, JSON_SUFFIX, TEXT_SUFFIX} from "./constants"
 import { v4 as uuidv4 } from "uuid";
 
 let eventSource = null;
@@ -55,6 +55,18 @@ export const unsubscribe = () => {
     eventSource = null;
   }
 };
+
+export const getContentType = (text) => {  
+  if (text.startsWith('<!DOCTYPE html>') || text.startsWith('<html>')) {
+    return HTML_SUFFIX;
+  } else if (text.startsWith('<?xml')) {
+    return XML_SUFFIX
+  } else if (text.startsWith('{') || text.startsWith('[')) {
+      return JSON_SUFFIX
+  } else {
+    return TEXT_SUFFIX;
+  }
+}
 
 export const durationToString = (durationInMillis) => {
   if (durationInMillis) {
