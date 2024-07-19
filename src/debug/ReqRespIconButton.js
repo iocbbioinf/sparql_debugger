@@ -6,7 +6,8 @@ import { saveAs } from 'file-saver';
 import modalStyle from './styles/modalStyle'; 
 import { baseUrl } from "./utils/constants";
 import JSONPretty from 'react-json-pretty';
-
+import DownloadIcon from '@mui/icons-material/Download';
+import './styles/debugStyles.css'; 
 
 function ReqRespIconButton({ queryId, nodeId, isRequest }) {
   const [open, setOpen] = useState(false);
@@ -99,11 +100,16 @@ function ReqRespIconButton({ queryId, nodeId, isRequest }) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={modalStyle}>
-          <Button onClick={handleDownload} variant="contained" color="primary" style={{ marginTop: '10px' }}>
-            Download
-          </Button>
-          <JSONPretty id="json-pretty" data={fileContent} theme={JSONPretty.monikai}></JSONPretty>
+        <Box sx={modalStyle} className="modal-content">
+          <Button
+              onClick={handleDownload}
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              className="fancy-button"
+            >
+              Download
+            </Button>
+          <JSONPretty id="json-pretty" data={fileContent} theme={JSONPretty.monikai} className="json-pretty"></JSONPretty>
         </Box>
       </Modal>
     </div>

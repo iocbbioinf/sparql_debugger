@@ -12,5 +12,6 @@ const modalStyle = {
     maxHeight: '90vh', 
     maxWidth: '90vw' 
   };
+
   
   export default modalStyle;
