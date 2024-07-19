@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createTheme } from '@mui/material/styles'; 
 
-//import { SparqlDebugger } from 'sparqldebugtree';
-import SparqlDebugger from './debug/SparqlDebugger';
+import { SparqlDebugger } from 'sparqldebugtree';
+//import SparqlDebugger from './debug/SparqlDebugger';
 
 
 export default function IdsmSparqlDebugger({ yasgui}) {
@@ -10,13 +10,13 @@ export default function IdsmSparqlDebugger({ yasgui}) {
   const theme = createTheme({
     palette: {
       primary: {
-        main: '#1976d2', // A cool blue color
+        main: '#1976d2', 
       },
       secondary: {
-        main: '#ff4081', // A contrasting pink color
+        main: '#ff4081', 
       },
       background: {
-        default: '#f5f5f5', // Light grey background
+        default: '#f5f5f5', 
       },
     },
     typography: {

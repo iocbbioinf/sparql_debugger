@@ -35,7 +35,7 @@
     "react-select": "^5.7.4",
     "react-useanimations": "^2.10.0",
     "reacttmpcomponent": "^1.0.0",
-    "sparqldebugtree": "^1.4.1",
+    "sparqldebugtree": "^1.4.2",
     "uuid": "^10.0.0",
     "web-vitals": "^2.1.0"
   },
