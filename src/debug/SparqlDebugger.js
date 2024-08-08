@@ -146,14 +146,22 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
                   )}
                   {!nodeContent.isBulk && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} />}
                   {!nodeContent.isBulk && nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={false} />}
-                  {nodeContent.duration && (
+                  {nodeContent.endTime && (
                     <Tooltip title="Duration" arrow>
                       <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', pr: 1 }}>
-                        {durationToString(nodeContent.duration)}
+                        {durationToString(nodeContent.endTime - nodeContent.startTime)}
                       </Typography>
                     </Tooltip>
                   )}
-                  {nodeContent.responseItemCount && <Typography variant="body2" sx={{ ml: 1 }}>{nodeContent.responseItemCount}</Typography>}
+
+                  {nodeContent.resultsCount && (
+                    <Tooltip title="Number of results" arrow>
+                      <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', pr: 1 }}>
+                        {nodeContent.resultsCount}
+                      </Typography>
+                    </Tooltip>
+                  )}
+
                 </Box>
               </Box>
             </Box>
@@ -251,7 +259,10 @@ const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo }) => {
               startIcon={queryIsRunning ?  <CancelIcon /> : <BugReportIcon />}
             >
             {queryIsRunning ? 'Cancel' : 'Debug'}
-          </Button>
+          </Button>          
+          <Link href="https://gitlab.elixir-czech.cz/moos/idsm_debug_server/-/issues" target="_blank" rel="noopener noreferrer" style={{ marginLeft: 16 }}>
+          Report Debugging Issue
+          </Link>
         </Box>
         <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} ref={debugTreeViewRef}/>
       </Container>
