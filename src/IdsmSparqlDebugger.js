@@ -5,7 +5,9 @@ import { createTheme } from '@mui/material/styles';
 import SparqlDebugger from './debug/SparqlDebugger';
 
 
-export default function IdsmSparqlDebugger({ yasgui}) {
+export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
+
+  const [tabsDebugMap, setTabsDebugMap] = useState({});
 
   const theme = createTheme({
     palette: {
@@ -53,7 +55,27 @@ export default function IdsmSparqlDebugger({ yasgui}) {
     updateQueryInfo();
   }, [yasgui]);
 
+  useEffect(() => {
+    if (!tabsDebugMap[currentTabKey]) {
+      const newTab = (
+        <SparqlDebugger
+          key={currentTabKey}
+          theme={theme}
+          query={query}
+          endpoint={endpoint}
+          updateQueryInfo={updateQueryInfo}
+        />
+      );
+      setTabsDebugMap((prevMap) => ({ ...prevMap, [currentTabKey]: newTab }));
+    }
+  }, [currentTabKey]);
+
+
   return (
-    <SparqlDebugger theme={theme} query={query} endpoint={endpoint} updateQueryInfo={updateQueryInfo} />
+
+    <div>
+      {tabsDebugMap[currentTabKey]}
+    </div>
+    
   );
 }

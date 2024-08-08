@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import YasguiJS from "@triply/yasgui";
 
 import TablePlus from "./TablePlus";
@@ -13,6 +13,10 @@ class Yasgui extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      currentTabId: null,
+    };
 
     this.reference = React.createRef();
     this.yasgui = null;
@@ -36,6 +40,11 @@ class Yasgui extends React.Component {
       copyEndpointOnNewTab: false,
       corsProxy: corsProxy
     });
+
+    this.yasgui.on('tabChange', (instance, tab) => {
+      this.props.onTabChange(tab.getId());
+    });
+    
   }
 
 

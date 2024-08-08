@@ -48,7 +48,13 @@ function Sparql() {
 
   const [statusIsOpen, setStatusIsOpen] = React.useState(false);
 
+  const [currentYasguiTabId, setCurrentYasguiTabId] = React.useState(null);
+
   const yasgui = React.useRef(null);
+
+  const handleTabChange = (newTabId) => {
+    setCurrentYasguiTabId(newTabId);
+  };
 
   return (
     <Container fluid className="mt-3">
@@ -135,10 +141,10 @@ function Sparql() {
         </Col>
 
         <Col xl={6} lg={5} md={4} sm={12} style={{position: "inherit"}}>
-          <Yasgui ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
+          <Yasgui onTabChange={handleTabChange} ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
         </Col>    
         <Col xl={3} lg={3} md={3} sm={12}>
-          <IdsmSparqlDebugger yasgui={yasgui}/>
+          <IdsmSparqlDebugger yasgui={yasgui} currentTabKey={currentYasguiTabId}/>
         </Col>
       </Row>  
     </Container>
