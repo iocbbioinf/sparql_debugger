@@ -56,17 +56,6 @@ export const unsubscribe = () => {
   }
 };
 
-export const getContentType = (text) => {  
-  if (text.startsWith('<!DOCTYPE html>') || text.startsWith('<html>')) {
-    return HTML_SUFFIX;
-  } else if (text.startsWith('<?xml')) {
-    return XML_SUFFIX
-  } else if (text.startsWith('{') || text.startsWith('[')) {
-      return JSON_SUFFIX
-  } else {
-    return TEXT_SUFFIX;
-  }
-}
 
 export const durationToString = (durationInMillis) => {
   if (durationInMillis) {
@@ -167,9 +156,16 @@ function addBulkNodes(treeData) {
       } else {
         bulkState = PENDING_STATE
       }
+
+      const tmp1 = x.map(child => child.data.endTime);
+      const tmp2 = x.map(child => child.data.endTime).filter(time => time != null);
+      const tmp3 = Math.max(x.map(child => child.data.endTime).filter(time => time != null));
+      const tmp4 = Math.max(...x.map(child => child.data.startTime).filter(time => time != null));
+
+      const duration = Math.max(...x.map(child => child.data.endTime).filter(time => time != null)) - Math.min(...x.map(child => child.data.startTime).filter(time => time != null));
             
       return {
-        data: {nodeId: uuidv4(), isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState}, 
+        data: {nodeId: uuidv4(), isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState, duration: duration}, 
         children: x.map((child) => addBulkNodes(child))
       }
   })  

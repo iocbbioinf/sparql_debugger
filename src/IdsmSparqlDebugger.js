@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createTheme } from '@mui/material/styles'; 
 
-//import { SparqlDebugger } from 'sparqldebugtree';
-import SparqlDebugger from './debug/SparqlDebugger';
+import { SparqlDebugger } from 'sparqldebugtree';
+//import SparqlDebugger from './debug/SparqlDebugger';
 
 
 export default function IdsmSparqlDebugger({ yasgui}) {

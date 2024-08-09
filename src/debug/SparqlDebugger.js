@@ -144,8 +144,15 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
                       </Typography>
                     </Tooltip>
                   )}
-                  {!nodeContent.isBulk && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} />}
-                  {!nodeContent.isBulk && nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={false} />}
+                  {nodeContent.isBulk && (
+                    <Tooltip title="Duration" arrow>
+                      <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', pr: 4 }}>
+                        {durationToString(nodeContent.duration)}
+                      </Typography>
+                    </Tooltip>
+                  )}
+                  {!nodeContent.isBulk && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} resultType={nodeContent.resultType}/>}
+                  {!nodeContent.isBulk && nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={false} resultType={nodeContent.resultType}/>}
                   {nodeContent.endTime && (
                     <Tooltip title="Duration" arrow>
                       <Typography variant="body2" color="inherit" sx={{ fontWeight: 'inherit', pr: 1 }}>
