@@ -14,10 +14,14 @@ export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpand
 
     
   const fullUrl = `${baseUrl}/query?${encodedParams}`;
+  let queryId = null;
 
-  console.log(fullUrl);
+  axios.post(fullUrl).then((response) => {
+    queryId = response;
+  })
 
-  eventSource = new EventSource(fullUrl);
+  const sseUrl = `${baseUrl}/query/${queryId}/sse`;
+  eventSource = new EventSource(sseUrl);
 
   eventSource.onmessage = function (event) {
     console.log("New event from server:", event.data);
