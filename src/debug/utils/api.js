@@ -6,6 +6,8 @@ let eventSource = null;
 let queryId = null;
 
 export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpandedItems, setQueryIsRunning) => {
+  axios.defaults.withCredentials = true;
+
   const encodedParams = Object.keys(params)
     .map((key) => {
       return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
@@ -16,41 +18,46 @@ export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpand
   const fullUrl = `${baseUrl}/query?${encodedParams}`;
   let queryId = null;
 
-  axios.post(fullUrl).then((response) => {
-    queryId = response;
+  axios.post(fullUrl, null, {
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  }).then((response) => {
+
+    queryId = response.data;
+
+    const sseUrl = `${baseUrl}/query/${queryId}/sse`;
+    eventSource = new EventSource(sseUrl, { withCredentials: true });
+  
+    eventSource.onmessage = function (event) {
+      console.log("New event from server:", event.data);
+  
+      const eventData = JSON.parse(event.data);
+      queryId = eventData.queryId;
+  
+      setTreeData((prevState) =>
+        refreshTree(prevState, eventData, setExpandedItems)
+      );
+  
+      setTreeData((prevState) => {
+        if(prevState.root.data.state !== PENDING_STATE) {
+          setQueryIsRunning(false);
+        }
+        return prevState;
+      });
+  
+      setTreeData((prevState) => {
+        setRenderData([refreshRenderTree(addBulkNodes(prevState))]);
+        return prevState;
+      });
+  
+    };  
+  
+    eventSource.onerror = function (err) {
+      console.error("EventSource failed:", err);
+      eventSource.close();
+    };  
   })
-
-  const sseUrl = `${baseUrl}/query/${queryId}/sse`;
-  eventSource = new EventSource(sseUrl);
-
-  eventSource.onmessage = function (event) {
-    console.log("New event from server:", event.data);
-
-    const eventData = JSON.parse(event.data);
-    queryId = eventData.queryId;
-
-    setTreeData((prevState) =>
-      refreshTree(prevState, eventData, setExpandedItems)
-    );
-
-    setTreeData((prevState) => {
-      if(prevState.root.data.state !== PENDING_STATE) {
-        setQueryIsRunning(false);
-      }
-      return prevState;
-    });
-
-    setTreeData((prevState) => {
-      setRenderData([refreshRenderTree(addBulkNodes(prevState))]);
-      return prevState;
-    });
-
-  };  
-
-  eventSource.onerror = function (err) {
-    console.error("EventSource failed:", err);
-    eventSource.close();
-  };
 };
 
 export const unsubscribe = () => {
@@ -151,8 +158,8 @@ function addBulkNodes(treeData) {
   
     const bulkChildrenNodes = Object.values(childMultiGroup).map(x => {
       var bulkState;
-      if(treeData.data.state != PENDING_STATE) {
-        if(x.every((child) => child.data.state == SUCCESS_STATE)) {
+      if(treeData.data.state !== PENDING_STATE) {
+        if(x.every((child) => child.data.state === SUCCESS_STATE)) {
           bulkState = SUCCESS_STATE;
         } else {
           bulkState = FAILURE_STATE;
@@ -160,11 +167,6 @@ function addBulkNodes(treeData) {
       } else {
         bulkState = PENDING_STATE
       }
-
-      const tmp1 = x.map(child => child.data.endTime);
-      const tmp2 = x.map(child => child.data.endTime).filter(time => time != null);
-      const tmp3 = Math.max(x.map(child => child.data.endTime).filter(time => time != null));
-      const tmp4 = Math.max(...x.map(child => child.data.startTime).filter(time => time != null));
 
       const duration = Math.max(...x.map(child => child.data.endTime).filter(time => time != null)) - Math.min(...x.map(child => child.data.startTime).filter(time => time != null));
             
