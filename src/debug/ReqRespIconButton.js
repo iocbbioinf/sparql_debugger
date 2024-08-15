@@ -27,7 +27,8 @@ function ReqRespIconButton({ queryId, nodeId, isRequest, resultType }) {
         headers: {
           'Accept-Encoding': 'gzip,deflate',
           'Range': `bytes=0-${actualPreviewLength - 1}`
-        }
+        },
+        'credentials': 'include'
       });
 
       const blob = await response.blob();
@@ -54,7 +55,8 @@ function ReqRespIconButton({ queryId, nodeId, isRequest, resultType }) {
       const response = await fetch(fullUrl, {
         headers: {
           'Accept-Encoding': 'gzip,deflate'
-        }
+        },
+        'credentials': 'include'
       });
       
       const blob = await response.blob();

@@ -6,7 +6,6 @@ let eventSource = null;
 let queryId = null;
 
 export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpandedItems, setQueryIsRunning) => {
-  axios.defaults.withCredentials = true;
 
   const encodedParams = Object.keys(params)
     .map((key) => {
@@ -16,15 +15,15 @@ export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpand
 
     
   const fullUrl = `${baseUrl}/query?${encodedParams}`;
-  let queryId = null;
 
   axios.post(fullUrl, null, {
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-    }
+    },
+    withCredentials: true
   }).then((response) => {
 
-    queryId = response.data;
+    queryId = response.data;  
 
     const sseUrl = `${baseUrl}/query/${queryId}/sse`;
     eventSource = new EventSource(sseUrl, { withCredentials: true });
@@ -210,13 +209,21 @@ function refreshRenderTree(bulkTreeData) {
 export const deleteQuery = () => {
   if(queryId) {
     const fullUrl = `${baseUrl}/query/${queryId}/delete`;  
-    axios.post(fullUrl);
+
+    axios.post(fullUrl, null, {
+       withCredentials: true
+    })
+
   }
 }
 
 export const cancelQuery = () => {
   if(queryId) {
     const fullUrl = `${baseUrl}/query/${queryId}/cancel`;  
-    axios.post(fullUrl);
+
+    axios.post(fullUrl, null, {
+       withCredentials: true
+    })
+    
   }
 }
