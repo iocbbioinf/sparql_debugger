@@ -216,14 +216,3 @@ export const deleteQuery = () => {
 
   }
 }
-
-export const cancelQuery = () => {
-  if(queryId) {
-    const fullUrl = `${baseUrl}/query/${queryId}/cancel`;  
-
-    axios.post(fullUrl, null, {
-       withCredentials: true
-    })
-    
-  }
-}

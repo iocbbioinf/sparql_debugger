@@ -20,7 +20,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest, resultType }) {
     const reqResp = isRequest ? "request" : "response";
     const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
 
-    const actualPreviewLength = resultType === "html" ? 200000 : PREVIEW_LENGTH;
+    const actualPreviewLength = resultType && resultType.toLowerCase() === "html" ? 200000 : PREVIEW_LENGTH;
 
     try {
       const response = await fetch(fullUrl, {
@@ -115,7 +115,7 @@ function ReqRespIconButton({ queryId, nodeId, isRequest, resultType }) {
               Download
             </Button>
 
-            {resultType === "html" ? (
+            {resultType && resultType.toLowerCase() === "html" ? (
             <div             
               style={{
                 flex: 1, // Make the content take up remaining space
