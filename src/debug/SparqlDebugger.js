@@ -151,7 +151,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
                       </Typography>
                     </Tooltip>
                   )}
-                  {!nodeContent.isBulk && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true} resultType={nodeContent.resultType}/>}
+                  {!nodeContent.isBulk && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={true}/>}
                   {!nodeContent.isBulk && nodeContent.state !== PENDING_STATE && <ReqRespIconButton queryId={nodeContent.queryId} nodeId={nodeContent.nodeId} isRequest={false} resultType={nodeContent.resultType}/>}
                   {nodeContent.endTime && (
                     <Tooltip title="Duration" arrow>

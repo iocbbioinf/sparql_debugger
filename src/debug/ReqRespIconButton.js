@@ -92,6 +92,22 @@ function ReqRespIconButton({ queryId, nodeId, isRequest, resultType }) {
   const icon = isRequest ? <InputIcon /> : <OutputIcon />;
   const iconTitle = isRequest ? "Request" : "Response";
 
+  const JSONPrettyWrapper = ({ data, resultType }) => {
+    const isJsonOrXml = (resultType) => {
+        if (resultType && resultType.toLowerCase === "json" || resultType === "xml") {
+          return true;
+        } 
+        return false;
+      }
+
+    return isJsonOrXml(resultType) ? (
+      <JSONPretty id="json-pretty" data={data} theme={JSONPretty.monikai} className="json-pretty"></JSONPretty>
+    ) : (
+      <pre>{data}</pre>
+    );
+  };
+  
+
   return (
     <div>
       <Tooltip title={iconTitle}>
@@ -128,8 +144,8 @@ function ReqRespIconButton({ queryId, nodeId, isRequest, resultType }) {
               dangerouslySetInnerHTML={{ __html: fileContent }}
               className="html-preview"              
             />
-          ) : (
-            <JSONPretty id="json-pretty" data={fileContent} theme={JSONPretty.monikai} className="json-pretty"></JSONPretty>
+          ) : ( 
+            <JSONPrettyWrapper data={fileContent} resultType={resultType}/>
           )}
 
           
