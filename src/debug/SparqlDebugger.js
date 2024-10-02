@@ -181,7 +181,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   });
   
 
-  const DebugTreeView = forwardRef(({ endpoint, query, setQueryIsRunning}, ref) => {
+  const DebugTreeView = forwardRef(({ endpoint, query, setQueryIsRunning, processResponse}, ref) => {
 
     const [treeData, setTreeData] = useState({});
     const [treeRenderData, setTreeRenderData] = useState([]);
@@ -211,7 +211,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
       setExpandedItems([])
       setTreeRenderData([]);      
 
-      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems, setQueryIsRunning);
+      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems, setQueryIsRunning, processResponse);
 
     }
     
@@ -237,7 +237,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo }) => {
+const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, processResponse }) => {
   const debugTreeViewRef = useRef(null);
   const [queryIsRunning, setQueryIsRunning] = useState(false)
 
@@ -271,7 +271,7 @@ const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo }) => {
           Report Debugging Issue
           </Link>
         </Box>
-        <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} ref={debugTreeViewRef}/>
+        <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} processResponse={processResponse} ref={debugTreeViewRef}/>
       </Container>
     </ThemeProvider>
   );

@@ -51,6 +51,12 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
     setQuery(yasgui.current.getCurrentQuery());
   };
 
+  const processResponse = async(response) => {
+    const respStr = await response;
+
+    yasgui.current.setResponse(respStr);    
+  }
+
   useEffect(() => {
     updateQueryInfo();
   }, [yasgui]);
@@ -64,6 +70,7 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
           query={query}
           endpoint={endpoint}
           updateQueryInfo={updateQueryInfo}
+          processResponse={processResponse}
         />
       );
       setTabsDebugMap((prevMap) => ({ ...prevMap, [currentTabKey]: newTab }));

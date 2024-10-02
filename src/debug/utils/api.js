@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 let eventSource = null;
 let queryId = null;
 
-export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpandedItems, setQueryIsRunning) => {
+export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpandedItems, setQueryIsRunning, processResponse) => {
 
   const encodedParams = Object.keys(params)
     .map((key) => {
@@ -49,8 +49,38 @@ export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpand
         setRenderData([refreshRenderTree(addBulkNodes(prevState))]);
         return prevState;
       });
-  
+
+      
+      setTreeData((prevState) => {
+        if(eventData.nodeId === prevState.root.data.nodeId && eventData.queryId === prevState.root.data.queryId && eventData.state === SUCCESS_STATE) {
+
+          const response = {
+            contentType: prevState.root.data.contentType[0],
+            status: prevState.root.data.httpStatus,
+            executionTime: prevState.root.data.endTime - prevState.root.data.startTime
+          }
+          
+          const fullUrl = `${baseUrl}/query/${prevState.root.data.queryId}/call/${prevState.root.data.nodeId}/response`;
+
+          fetch(fullUrl, {
+            headers: {
+              'Accept-Encoding': 'gzip,deflate'
+            },
+            'credentials': 'include'
+          }).then(fetchResp => {
+            response.data = fetchResp.text()
+            .then(text => {
+              response.data=text;
+              processResponse(response)
+            })
+          })
+        }
+        return prevState;
+      });  
+      
+
     };  
+
   
     eventSource.onerror = function (err) {
       console.error("EventSource failed:", err);
