@@ -47,8 +47,19 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
   const [query, setQuery] = useState('');
 
   const updateQueryInfo = () => {
-    setEndpoint(yasgui.current.getCurrentEndpoint());
-    setQuery(yasgui.current.getCurrentQuery());
+
+    const newTab = (
+      <SparqlDebugger
+        key={currentTabKey}
+        theme={theme}
+        query={yasgui.current.getCurrentQuery()}
+        endpoint={yasgui.current.getCurrentEndpoint()}
+        updateQueryInfo={updateQueryInfo}
+        processResponse={processResponse}
+      />);
+
+      setTabsDebugMap((prevMap) => ({ ...prevMap, [currentTabKey]: newTab }));
+
   };
 
   const processResponse = async(response) => {
