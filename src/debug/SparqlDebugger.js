@@ -181,11 +181,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   });
   
 
-  const DebugTreeView = forwardRef(({ endpoint, query, setQueryIsRunning, processResponse}, ref) => {
-
-    const [treeData, setTreeData] = useState({});
-    const [treeRenderData, setTreeRenderData] = useState([]);
-    const [expandedItems, setExpandedItems] = useState([]);
+  const DebugTreeView = forwardRef(({ endpoint, query, setQueryIsRunning, processResponse, setTreeData, setTreeRenderData, setExpandedItems, getTreeData, getTreeRenderData, getExpandedItems }, ref) => {
 
     useImperativeHandle(ref, () => ({
       handleExecuteQuery,
@@ -211,7 +207,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
       setExpandedItems([])
       setTreeRenderData([]);      
 
-      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems, setQueryIsRunning, processResponse);
+      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems, setQueryIsRunning, processResponse, getTreeData, getTreeRenderData, getExpandedItems);
 
     }
     
@@ -228,18 +224,18 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         <RichTreeView
           aria-label="icon expansion"
           sx={{ position: 'relative' }}
-          expandedItems={expandedItems}
+          expandedItems={getExpandedItems()}
           onExpandedItemsChange={handleExpandedItemsChange}          
-          items={treeRenderData}
+          items={getTreeRenderData()}
           slots={{ item: CustomTreeItem }}
         />
       </Box>
     );
 });
 
-const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, processResponse }) => {
+const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, processResponse, setTreeData, setTreeRenderData, setExpandedItems, 
+  setQueryIsRunning, getTreeData, getTreeRenderData, getExpandedItems, queryIsRunning }) => {
   const debugTreeViewRef = useRef(null);
-  const [queryIsRunning, setQueryIsRunning] = useState(false)
 
   const handleDebugClick = () => {
     if(queryIsRunning) {
@@ -271,7 +267,9 @@ const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, processRespon
           Report Debugging Issue
           </Link>
         </Box>
-        <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} processResponse={processResponse} ref={debugTreeViewRef}/>
+        <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} processResponse={processResponse} 
+          setTreeData={setTreeData} setTreeRenderData={setTreeRenderData} setExpandedItems={setExpandedItems}  getTreeData={getTreeData} getTreeRenderData={getTreeRenderData} 
+          getExpandedItems={getExpandedItems} ref={debugTreeViewRef}/>
       </Container>
     </ThemeProvider>
   );
