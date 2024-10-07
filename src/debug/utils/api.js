@@ -5,7 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 let eventSource = null;
 let queryId = null;
 
-export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpandedItems, setQueryIsRunning, processResponse, getTreeData, getRenderData, getExpandedItems) => {
+export const subscribeToUpdates = (params, queryData, setDebugTab, processResponse) => {
+
+  var newQueryData =  {...{}, ...queryData};
+
 
   const encodedParams = Object.keys(params)
     .map((key) => {
@@ -34,25 +37,25 @@ export const subscribeToUpdates = (params, setTreeData, setRenderData, setExpand
       const eventData = JSON.parse(event.data);
       queryId = eventData.queryId;
   
-      setTreeData(
-        refreshTree(getTreeData(), eventData, setExpandedItems, getExpandedItems)
-      );
+      refreshTree(eventData, newQueryData)
   
-      if(getTreeData().root.data.state !== PENDING_STATE) {
-          setQueryIsRunning(false);
+      if(newQueryData.treeData.root.data.state !== PENDING_STATE) {
+        newQueryData["queryIsRunning"] = false;
       }  
   
-      setRenderData([refreshRenderTree(addBulkNodes(getRenderData()))]);
+      newQueryData.renderData = [refreshRenderTree(addBulkNodes(newQueryData.treeData))]
       
-      if(eventData.nodeId === getTreeData().root.data.nodeId && eventData.queryId === getTreeData().root.data.queryId && eventData.state === SUCCESS_STATE) {
+      setDebugTab(newQueryData);
+
+      if(eventData.nodeId === newQueryData.treeData.root.data.nodeId && eventData.queryId === newQueryData.treeData.root.data.queryId && eventData.state === SUCCESS_STATE) {
 
         const response = {
-          contentType: getTreeData().root.data.contentType[0],
-          status: getTreeData().root.data.httpStatus,
-          executionTime: getTreeData().root.data.endTime - getTreeData().root.data.startTime
+          contentType: newQueryData.treeData.root.data.contentType[0],
+          status: newQueryData.treeData.root.data.httpStatus,
+          executionTime: newQueryData.treeData.root.data.endTime - newQueryData.treeData.root.data.startTime
         }
         
-        const fullUrl = `${baseUrl}/query/${getTreeData().root.data.queryId}/call/${getTreeData().root.data.nodeId}/response`;
+        const fullUrl = `${baseUrl}/query/${newQueryData.treeData.root.data.queryId}/call/${newQueryData.treeData.root.data.nodeId}/response`;
 
         fetch(fullUrl, {
           headers: {
@@ -113,7 +116,7 @@ export const durationToString = (durationInMillis) => {
   return "";
 };
 
-function refreshTree(treeData, newNode, setExpandedItems, getExpandedItems) {
+function refreshTree(newNode, queryData) {
   var updated = false;
 
   function refreshTreeRek(node) {
@@ -131,7 +134,7 @@ function refreshTree(treeData, newNode, setExpandedItems, getExpandedItems) {
     }
 
     if (updated === false && node.data.nodeId === newNode.parentNodeId) {
-      setExpandedItems( [...getExpandedItems(), newNode.nodeId.toString()]);
+      queryData.expandedItems = [...queryData.expandedItems, newNode.nodeId.toString()];
       result = {
         data: { ...node.data },
         children: [...(node.children ? node.children : []), { data: newNode }],
@@ -143,12 +146,11 @@ function refreshTree(treeData, newNode, setExpandedItems, getExpandedItems) {
     return result;
   }
 
-  if (treeData.root) {
-    var result = { root: refreshTreeRek(treeData.root) };
-    return result;
+  if (queryData.treeData.root) {
+    queryData.treeData = { root: refreshTreeRek(queryData.treeData.root) };
   } else {
-    setExpandedItems([...getExpandedItems(), newNode.nodeId.toString()]);
-    return { root: { data: newNode } };
+    queryData.expandedItems = [...queryData.expandedItems, newNode.nodeId.toString()]
+    queryData.treeData = { root: { data: newNode } };
   }
 }
 

@@ -10,7 +10,8 @@ import Link from '@mui/material/Link';
 
 export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
 
-  const [tabsDebugMap, setTabsDebugMap] = useState({});
+  const [tabsDebugMap, setTabsDebugMap] = useState(new Map());
+  const [tabsDebugComponentMap, setTabsDebugComponentMap] = useState(new Map());
 
   const theme = createTheme({
     palette: {
@@ -46,111 +47,88 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
     },
   });
     
-  const [endpoint, setEndpoint] = useState('');
-  const [query, setQuery] = useState('');
-
-  const updateQueryInfo = () => {
-    setEndpoint(yasgui.current.getCurrentEndpoint());
-    setQuery(yasgui.current.getCurrentQuery());
-  };
-
   const processResponse = async(response) => {
     const respStr = await response;
 
     yasgui.current.setResponse(respStr);    
   }
 
-  useEffect(() => {
-    updateQueryInfo();
-  }, [yasgui]);
+  const getQuery = () => {
+    return yasgui.current.getCurrentQuery()
+  }
+
+  const getEndpoint = () => {
+    return yasgui.current.getCurrentEndpoint()
+  }
+
+  const setDebugTab = (queryData) => {
+    setTabsDebugMap((preMap) => new Map([
+      ...preMap.entries(),
+      [queryData.tabKey, queryData]
+    ]))        
+
+    setTabsDebugComponentMap((prevMap) => (new Map([
+      ...prevMap.entries(),
+      [queryData.tabKey, (
+        <SparqlDebugger
+          key={queryData.tabKey}
+          theme={theme}
+          query={getQuery}
+          endpoint={getEndpoint}
+          queryData={queryData}
+          setDebugTab={setDebugTab}
+          processResponse={async (response) => yasgui.current.setResponse(await response)}
+        />
+      )
+      ]])))
+  }
 
   useEffect(() => {
-    if (currentTabKey && !tabsDebugMap[currentTabKey]) {
-      // Initialize state for each tab when it is first opened
-//      const { endpoint, query } = updateQueryInfo();
+    if (currentTabKey && !tabsDebugMap.get(currentTabKey)) {
 
       const newTabState = {
+        tabKey: currentTabKey,
         treeData: {},
-        treeRenderData: [],
+        renderData: [],
         expandedItems: [],
-        queryIsRunning: false,
-        component: (
+        queryIsRunning: false
+      };
+
+      setTabsDebugMap((prevMap) => (new Map([
+        ...prevMap.entries(),
+        [currentTabKey, newTabState]
+      ])));
+
+      
+      setTabsDebugComponentMap((prevMap) => (new Map([
+        ...prevMap.entries(),
+        [currentTabKey, (
           <SparqlDebugger
             key={currentTabKey}
             theme={theme}
-            query={query}
-            endpoint={endpoint}
-            updateQueryInfo={updateQueryInfo}
+            query={getQuery}
+            endpoint={getEndpoint}            
+            queryData={newTabState}
+            setDebugTab={setDebugTab}
             processResponse={async (response) => yasgui.current.setResponse(await response)}
-            setTreeData={(data) => {
-              console.log("mmo:" + data.toString())
-              
-              setTabsDebugMap((prevMap) => ({
-                ...prevMap,
-                [currentTabKey]: {  
-                  ...prevMap[currentTabKey],
-                  treeData: data,
-                },
-              }))}
-            }
-            setTreeRenderData={(data) => {
-              console.log("mmo:" + data.toString())
-              setTabsDebugMap((prevMap) => ({
-                ...prevMap,
-                [currentTabKey]: {
-                  ...prevMap[currentTabKey],
-                  treeRenderData: data,
-                },
-              }))}
-            }
-            setExpandedItems={(items) => {
-              console.log("mmo:" + items.toString())
-              setTabsDebugMap((prevMap) => ({
-                ...prevMap,
-                [currentTabKey]: {
-                  ...prevMap[currentTabKey],
-                  expandedItems: items,
-                },
-              }))}
-            }
-            setQueryIsRunning={(queryIsRunning) => {
-              setTabsDebugMap((prevMap) => ({
-                ...prevMap,
-                [currentTabKey]: {
-                  ...prevMap[currentTabKey],
-                  queryIsRunning: queryIsRunning,
-                },
-              }))}
-            }
-            getTreeData={ () => {
-              const tmp = tabsDebugMap[currentTabKey]?.treeData || {}
-              return tmp
-            }
-            }
-            getTreeRenderData={ () => tabsDebugMap[currentTabKey]?.treeRenderData || {}}  
-            getExpandedItems={ () => tabsDebugMap[currentTabKey]?.expandedItems || []}
-            queryIsRunning={tabsDebugMap[currentTabKey]?.queryIsRunning || false}
           />
-        ),
-      };
+        )
+        ]])))
 
-      // Add the initialized state to the tabsDebugMap
-      setTabsDebugMap((prevMap) => ({
-        ...prevMap,
-        [currentTabKey]: newTabState,
-      }));
     }
-  }, [currentTabKey, yasgui]);
+  }, [currentTabKey]);
 
 
   return (
 
     <div>      
-          <Link href="https://gitlab.elixir-czech.cz/moos/idsm_debug_server/-/issues" target="_blank" rel="noopener noreferrer" style={{ marginLeft: 16 }}>
-          Report Debugging Issue
-          </Link>
+      { tabsDebugComponentMap.forEach((value, key) => {
+        console.log("MMO-Key: " + key);
+        })}
 
-      {tabsDebugMap[currentTabKey]?.component}
+      {console.log("MMO-currentTabKey:" + currentTabKey)}
+      
+      {tabsDebugComponentMap.get(currentTabKey)}
     </div>
     
   );

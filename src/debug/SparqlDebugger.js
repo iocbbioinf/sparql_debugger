@@ -181,7 +181,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   });
   
 
-  const DebugTreeView = forwardRef(({ endpoint, query, setQueryIsRunning, processResponse, setTreeData, setTreeRenderData, setExpandedItems, getTreeData, getTreeRenderData, getExpandedItems }, ref) => {
+  const DebugTreeView = forwardRef(({ endpoint, query, queryData, setDebugTab, processResponse}, ref) => {
 
     useImperativeHandle(ref, () => ({
       handleExecuteQuery,
@@ -192,31 +192,32 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
 
 
     const handleExpandedItemsChange = (event, itemIds) => {
-      setExpandedItems(itemIds);
+      setDebugTab({...queryData, 
+        expandedItems: itemIds});
     };  
     
     const handleExecuteQuery = async () => {
       const params = {
-        endpoint: `${endpoint}`,
-        query: `${query}`
+        endpoint: `${endpoint()}`,
+        query: `${query()}`
       }
     
       deleteQuery();
       unsubscribe();
-      setTreeData({});           
-      setExpandedItems([])
-      setTreeRenderData([]);      
 
-      subscribeToUpdates(params, setTreeData, setTreeRenderData, setExpandedItems, setQueryIsRunning, processResponse, getTreeData, getTreeRenderData, getExpandedItems);
+      const emptyData = {...queryData,           
+        treeData: {}, expandedItems: [], renderData: []}
 
+      setDebugTab(emptyData)
+
+      subscribeToUpdates(params, emptyData, setDebugTab, processResponse)
     }
     
     const handleStopQuery = async () => {
       deleteQuery();
       unsubscribe();
-      setTreeData({});           
-      setExpandedItems([])
-      setTreeRenderData([]);
+      setDebugTab({...queryData,           
+        treeData: {}, expandedItems: [], treeRenderData: [], queryIsRunning: false})
     };
 
     return (
@@ -224,31 +225,31 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         <RichTreeView
           aria-label="icon expansion"
           sx={{ position: 'relative' }}
-          expandedItems={getExpandedItems()}
+          expandedItems={queryData.expandedItems}
           onExpandedItemsChange={handleExpandedItemsChange}          
-          items={getTreeRenderData()}
+          items={queryData.renderData}
           slots={{ item: CustomTreeItem }}
         />
       </Box>
     );
 });
 
-const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, processResponse, setTreeData, setTreeRenderData, setExpandedItems, 
-  setQueryIsRunning, getTreeData, getTreeRenderData, getExpandedItems, queryIsRunning }) => {
+const SparqlDebugger = ({ theme, query, endpoint, queryData, setDebugTab, processResponse}) => {
   const debugTreeViewRef = useRef(null);
 
   const handleDebugClick = () => {
-    if(queryIsRunning) {
+    if(queryData.queryIsRunning) {
       debugTreeViewRef.current.handleStopQuery()
-      setQueryIsRunning(false)
-    } else {
-      updateQueryInfo()
+      setDebugTab({...queryData,           
+        queryIsRunning: false})
+    } else {      
       setTimeout(() => {
         if (debugTreeViewRef.current) {
           debugTreeViewRef.current.handleExecuteQuery();
         }
       }, 0);  
-      setQueryIsRunning(true)
+      setDebugTab({...queryData,           
+        queryIsRunning: true})
     }
   };
 
@@ -258,18 +259,17 @@ const SparqlDebugger = ({ theme, query, endpoint, updateQueryInfo, processRespon
       <Container maxWidth="md">
         <Box my={2} textAlign="center">
           <Button variant="contained" onClick={handleDebugClick}
-              color={queryIsRunning ?  'error' : 'success'}
-              startIcon={queryIsRunning ?  <CancelIcon /> : <BugReportIcon />}
+              color={queryData.queryIsRunning ?  'error' : 'success'}
+              startIcon={queryData.queryIsRunning ?  <CancelIcon /> : <BugReportIcon />}
             >
-            {queryIsRunning ? 'Cancel' : 'Debug'}
+            {queryData.queryIsRunning ? 'Cancel' : 'Debug'}
           </Button>          
           <Link href="https://gitlab.elixir-czech.cz/moos/idsm_debug_server/-/issues" target="_blank" rel="noopener noreferrer" style={{ marginLeft: 16 }}>
           Report Debugging Issue
           </Link>
         </Box>
-        <DebugTreeView endpoint={endpoint} query={query} setQueryIsRunning={setQueryIsRunning} processResponse={processResponse} 
-          setTreeData={setTreeData} setTreeRenderData={setTreeRenderData} setExpandedItems={setExpandedItems}  getTreeData={getTreeData} getTreeRenderData={getTreeRenderData} 
-          getExpandedItems={getExpandedItems} ref={debugTreeViewRef}/>
+        <DebugTreeView endpoint={endpoint} query={query} queryData={queryData} setDebugTab={setDebugTab} processResponse={processResponse} 
+           ref={debugTreeViewRef}/>
       </Container>
     </ThemeProvider>
   );
