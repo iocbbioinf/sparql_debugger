@@ -48,7 +48,8 @@ export const subscribeToUpdates = (params, queryData, setDebugTab, processRespon
       
       setDebugTab(newQueryData);
 
-      if(eventData.nodeId === newQueryData.treeData.root.data.nodeId && eventData.queryId === newQueryData.treeData.root.data.queryId && eventData.state === SUCCESS_STATE) {
+      if(eventData.nodeId === newQueryData.treeData.root.data.nodeId && eventData.queryId === newQueryData.treeData.root.data.queryId && 
+        (eventData.state === SUCCESS_STATE || eventData.state === FAILURE_STATE)) {
 
         const response = {
           tabKey: newQueryData.tabKey,

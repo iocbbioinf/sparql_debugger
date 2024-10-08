@@ -99,6 +99,10 @@ class Yasgui extends React.Component {
       this.props.onTabChange(tabId);
     });
 
+    this.yasgui.on('tabAdd', (instance, tabId) => {
+      this.props.onTabChange(tabId);
+    });
+
 
     const tmp = this.yasgui.getTab()
     this.props.onTabChange(this.yasgui.getTab().persistentJson.id)
