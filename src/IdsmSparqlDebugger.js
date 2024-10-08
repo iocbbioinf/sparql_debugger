@@ -4,9 +4,7 @@ import { createTheme } from '@mui/material/styles';
 //import { SparqlDebugger } from 'sparqldebugtree';
 import SparqlDebugger from './debug/SparqlDebugger';
 
-import Link from '@mui/material/Link';
-
-
+import Yasgui from '@triply/yasgui';
 
 export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
 
@@ -50,7 +48,9 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
   const processResponse = async(response) => {
     const respStr = await response;
 
-    yasgui.current.setResponse(respStr);    
+    if(yasgui.current.getTab(respStr.tabKey)) {
+      yasgui.current.getTab(respStr.tabKey).yasr.setResponse(respStr);    
+    }
   }
 
   const getQuery = () => {
@@ -77,7 +77,7 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
           endpoint={getEndpoint}
           queryData={queryData}
           setDebugTab={setDebugTab}
-          processResponse={async (response) => yasgui.current.setResponse(await response)}
+          processResponse={processResponse}
         />
       )
       ]])))
@@ -91,7 +91,7 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
         treeData: {},
         renderData: [],
         expandedItems: [],
-        queryIsRunning: false
+        queryIsRunning: false        
       };
 
       setTabsDebugMap((prevMap) => (new Map([
@@ -110,7 +110,7 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
             endpoint={getEndpoint}            
             queryData={newTabState}
             setDebugTab={setDebugTab}
-            processResponse={async (response) => yasgui.current.setResponse(await response)}
+            processResponse={processResponse}
           />
         )
         ]])))
@@ -121,13 +121,7 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
 
   return (
 
-    <div>      
-      { tabsDebugComponentMap.forEach((value, key) => {
-        console.log("MMO-Key: " + key);
-        })}
-
-      {console.log("MMO-currentTabKey:" + currentTabKey)}
-      
+    <div>            
       {tabsDebugComponentMap.get(currentTabKey)}
     </div>
     

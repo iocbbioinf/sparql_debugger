@@ -70,6 +70,7 @@ class Yasgui extends React.Component {
       },
       yasqe : {
         value: this.props.defaultQuery,
+        /*
         pluginButtons: (yasqeInstance) => {
           // You can customize this array with other plugin buttons, either your own or YasguiJS built-ins
           const buttons = [];
@@ -78,7 +79,8 @@ class Yasgui extends React.Component {
           buttons.push(debugButton);
     
           return buttons; // Return an array of buttons to YasguiJS
-        }        
+        } 
+        */       
       },
       requestConfig: {
         endpoint: this.props.defaultEndpoint
@@ -97,6 +99,9 @@ class Yasgui extends React.Component {
       this.props.onTabChange(tabId);
     });
 
+
+    const tmp = this.yasgui.getTab()
+    this.props.onTabChange(this.yasgui.getTab().persistentJson.id)
     
   }
 
@@ -126,6 +131,10 @@ class Yasgui extends React.Component {
 
   setResponse(response) {
     this.yasgui.getTab().yasr.setResponse(response);
+  }
+
+  getTab(tabId) {
+    return this.yasgui.getTab(tabId)
   }
 
 }

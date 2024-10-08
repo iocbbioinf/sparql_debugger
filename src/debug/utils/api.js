@@ -2,13 +2,12 @@ import axios from "axios";
 import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl, HTML_SUFFIX, XML_SUFFIX, JSON_SUFFIX, TEXT_SUFFIX} from "./constants"
 import { v4 as uuidv4 } from "uuid";
 
-let eventSource = null;
-let queryId = null;
-
 export const subscribeToUpdates = (params, queryData, setDebugTab, processResponse) => {
 
+  let eventSource = null;
+  let queryId = null;
+  
   var newQueryData =  {...{}, ...queryData};
-
 
   const encodedParams = Object.keys(params)
     .map((key) => {
@@ -44,12 +43,15 @@ export const subscribeToUpdates = (params, queryData, setDebugTab, processRespon
       }  
   
       newQueryData.renderData = [refreshRenderTree(addBulkNodes(newQueryData.treeData))]
+      newQueryData.eventSource = eventSource
+      newQueryData.queryId = queryId
       
       setDebugTab(newQueryData);
 
       if(eventData.nodeId === newQueryData.treeData.root.data.nodeId && eventData.queryId === newQueryData.treeData.root.data.queryId && eventData.state === SUCCESS_STATE) {
 
         const response = {
+          tabKey: newQueryData.tabKey,
           contentType: newQueryData.treeData.root.data.contentType[0],
           status: newQueryData.treeData.root.data.httpStatus,
           executionTime: newQueryData.treeData.root.data.endTime - newQueryData.treeData.root.data.startTime
@@ -80,7 +82,7 @@ export const subscribeToUpdates = (params, queryData, setDebugTab, processRespon
   })
 };
 
-export const unsubscribe = () => {
+export const unsubscribe = (eventSource) => {
   if (eventSource) {
     eventSource.close();
     eventSource = null;
@@ -226,7 +228,7 @@ function refreshRenderTree(bulkTreeData) {
   return result;
 }
 
-export const deleteQuery = () => {
+export const deleteQuery = (queryId) => {
   if(queryId) {
     const fullUrl = `${baseUrl}/query/${queryId}/delete`;  
 

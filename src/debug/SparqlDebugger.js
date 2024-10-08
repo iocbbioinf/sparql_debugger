@@ -202,20 +202,23 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         query: `${query()}`
       }
     
-      deleteQuery();
-      unsubscribe();
+      if(queryData.queryId) {
+        deleteQuery(queryData.queryId);
+      }
+      if(queryData.eventSource) {
+        unsubscribe(queryData.eventSource);
+      }
 
-      const emptyData = {...queryData,           
+      var emptyData = {...queryData,           
         treeData: {}, expandedItems: [], renderData: []}
 
-      setDebugTab(emptyData)
-
       subscribeToUpdates(params, emptyData, setDebugTab, processResponse)
+
     }
     
     const handleStopQuery = async () => {
-      deleteQuery();
-      unsubscribe();
+      deleteQuery(queryData.queryId);
+      unsubscribe(queryData.eventSource);
       setDebugTab({...queryData,           
         treeData: {}, expandedItems: [], treeRenderData: [], queryIsRunning: false})
     };
