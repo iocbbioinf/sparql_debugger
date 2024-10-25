@@ -52,9 +52,16 @@ function Sparql() {
 
   const yasgui = React.useRef(null);
 
+  const idsmSparqlDebugger = React.useRef(null);
+
   const handleTabChange = (newTabId) => {
     setCurrentYasguiTabId(newTabId);
   };
+
+  const handleDebugClick = () => {
+    console.log("MMO + Sparql")
+    idsmSparqlDebugger.current?.handleDebugClick(currentYasguiTabId);
+  }
 
   return (
     <Container fluid className="mt-3">
@@ -63,7 +70,7 @@ function Sparql() {
 
           <h2>IDSM SPARQL endpoints</h2>
           <p>
-            This page allows you to access the IDSM functionality through a SPARQL web-interface (on the right), and connect the search results to the data from other services. For a quick start, you may select a query example from the list below.
+              This page allows you to access the IDSM functionality through a SPARQL web-interface (on the right), and connect the search results to the data from other services. For a quick start, you may select a query example from the list below.
           </p>
           <p>
             <a target="_blank" href="/sparql/doc/manual.html"><Icon icon={faBook}/> User manual is available.</a>
@@ -141,10 +148,10 @@ function Sparql() {
         </Col>
 
         <Col xl={6} lg={5} md={4} sm={12} style={{position: "inherit"}}>
-          <Yasgui onTabChange={handleTabChange} ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
+          <Yasgui onDebugClick={handleDebugClick} onTabChange={handleTabChange} ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
         </Col>    
         <Col xl={3} lg={3} md={3} sm={12}>
-          <IdsmSparqlDebugger yasgui={yasgui} currentTabKey={currentYasguiTabId}/>
+          <IdsmSparqlDebugger yasgui={yasgui} currentTabKey={currentYasguiTabId} ref={idsmSparqlDebugger}/>
         </Col>
       </Row>  
     </Container>

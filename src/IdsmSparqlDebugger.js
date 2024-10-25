@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { createTheme } from '@mui/material/styles'; 
 
 //import { SparqlDebugger } from 'sparqldebugtree';
 import SparqlDebugger from './debug/SparqlDebugger';
 
-import Yasgui from '@triply/yasgui';
-
-export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
+const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
 
   const [tabsDebugMap, setTabsDebugMap] = useState(new Map());
   const [tabsDebugComponentMap, setTabsDebugComponentMap] = useState(new Map());
@@ -38,13 +36,13 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 8, // Rounded buttons
+            borderRadius: 8, 
           },
         },
       },
     },
   });
-    
+
   const processResponse = async(response) => {
     const respStr = await response;
 
@@ -52,6 +50,17 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
       yasgui.current.getTab(respStr.tabKey).yasr.setResponse(respStr);    
     }
   }
+
+
+  useImperativeHandle(ref, () => ({
+    handleDebugClick: (debuggerId) => {
+      console.log("MMO + IdsmSparqlDebugger");
+//      tabsDebugComponentMap.get(debuggerId)?.handleDebugClick();
+      sparqlDebuggerRef.current?.handleDebugClick();
+    }
+  }));
+
+  const sparqlDebuggerRef = useRef(null);
 
   const getQuery = () => {
     return yasgui.current.getCurrentQuery()
@@ -77,7 +86,8 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
           endpoint={getEndpoint}
           queryData={queryData}
           setDebugTab={setDebugTab}
-          processResponse={processResponse}
+          processResponse={processResponse}          
+          ref={sparqlDebuggerRef}
         />
       )
       ]])))
@@ -111,6 +121,7 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
             queryData={newTabState}
             setDebugTab={setDebugTab}
             processResponse={processResponse}
+            ref={sparqlDebuggerRef}
           />
         )
         ]])))
@@ -126,4 +137,6 @@ export default function IdsmSparqlDebugger({ yasgui, currentTabKey}) {
     </div>
     
   );
-}
+});
+
+export default IdsmSparqlDebugger;

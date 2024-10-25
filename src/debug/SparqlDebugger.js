@@ -237,7 +237,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-const SparqlDebugger = ({ theme, query, endpoint, queryData, setDebugTab, processResponse}) => {
+const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebugTab, processResponse}, ref) => {
   const debugTreeViewRef = useRef(null);
 
   const handleDebugClick = () => {
@@ -255,6 +255,10 @@ const SparqlDebugger = ({ theme, query, endpoint, queryData, setDebugTab, proces
         queryIsRunning: true})
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    handleDebugClick: handleDebugClick
+  }));
 
   return (
     <ThemeProvider theme={theme}>
@@ -276,6 +280,6 @@ const SparqlDebugger = ({ theme, query, endpoint, queryData, setDebugTab, proces
       </Container>
     </ThemeProvider>
   );
-}
+})
 
 export default SparqlDebugger
