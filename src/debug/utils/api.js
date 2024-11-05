@@ -39,7 +39,7 @@ export const subscribeToUpdates = (params, queryData, setDebugTab, processRespon
       refreshTree(eventData, newQueryData)
   
       if(newQueryData.treeData.root.data.state !== PENDING_STATE) {
-        newQueryData["queryIsRunning"] = false;
+        newQueryData["queryDebugIsRunning"] = false;
       }  
   
       newQueryData.renderData = [refreshRenderTree(addBulkNodes(newQueryData.treeData))]

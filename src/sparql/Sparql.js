@@ -63,6 +63,10 @@ function Sparql() {
     idsmSparqlDebugger.current?.handleDebugClick(currentYasguiTabId);
   }
 
+  const handleQueryResponse = (tab) => {
+    idsmSparqlDebugger.current?.handleQueryResponse(tab);
+  }
+
   return (
     <Container fluid className="mt-3">
       <Row>
@@ -148,7 +152,7 @@ function Sparql() {
         </Col>
 
         <Col xl={6} lg={5} md={4} sm={12} style={{position: "inherit"}}>
-          <Yasgui onDebugClick={handleDebugClick} onTabChange={handleTabChange} ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
+          <Yasgui onDebugClick={handleDebugClick} onTabChange={handleTabChange} onQueryResponse={handleQueryResponse} ref={yasgui} endpoints={endpoints} defaultEndpoint={defaultEndpoint} defaultQuery={defaultQuery}/>
         </Col>    
         <Col xl={3} lg={3} md={3} sm={12}>
           <IdsmSparqlDebugger yasgui={yasgui} currentTabKey={currentYasguiTabId} ref={idsmSparqlDebugger}/>

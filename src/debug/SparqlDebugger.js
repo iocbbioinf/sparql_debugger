@@ -24,6 +24,7 @@ import { Button, Container, Box, Typography, Tooltip, CssBaseline } from '@mui/m
 import { createTheme, ThemeProvider } from '@mui/material/styles'; 
 
 import BugReportIcon from '@mui/icons-material/BugReport';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 
   
@@ -184,7 +185,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   const DebugTreeView = forwardRef(({ endpoint, query, queryData, setDebugTab, processResponse}, ref) => {
 
     useImperativeHandle(ref, () => ({
-      handleExecuteQuery,
+      handleDebugQuery,
       handleStopQuery,
 
     }));
@@ -196,7 +197,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         expandedItems: itemIds});
     };  
     
-    const handleExecuteQuery = async () => {
+    const handleDebugQuery = async () => {
       const params = {
         endpoint: `${endpoint()}`,
         query: `${query()}`
@@ -220,7 +221,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
       deleteQuery(queryData.queryId);
       unsubscribe(queryData.eventSource);
       setDebugTab({...queryData,           
-        treeData: {}, expandedItems: [], treeRenderData: [], queryIsRunning: false})
+        treeData: {}, expandedItems: [], treeRenderData: [], queryDebugIsRunning: false})
     };
 
     return (
@@ -237,23 +238,35 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebugTab, processResponse}, ref) => {
+const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebugTab, processResponse, executeQuery, abortQuery}, ref) => {
   const debugTreeViewRef = useRef(null);
 
   const handleDebugClick = () => {
-    if(queryData.queryIsRunning) {
+    if(queryData.queryDebugIsRunning) {
       debugTreeViewRef.current.handleStopQuery()
       setDebugTab({...queryData,           
-        queryIsRunning: false})
+        queryDebugIsRunning: false})
     } else {      
       setTimeout(() => {
         if (debugTreeViewRef.current) {
-          debugTreeViewRef.current.handleExecuteQuery();
+          debugTreeViewRef.current.handleDebugQuery();
         }
       }, 0);  
       setDebugTab({...queryData,           
-        queryIsRunning: true})
+        queryDebugIsRunning: true})
     }
+  };
+
+  const handleExecClick = () => {
+    if(queryData.queryExecIsRunning) {
+      abortQuery();
+      setDebugTab({...queryData,           
+        queryExecIsRunning: false})
+    } else {      
+        executeQuery();
+        setDebugTab({...queryData,           
+          queryExecIsRunning: true})  
+    }    
   };
 
   useImperativeHandle(ref, () => ({
@@ -266,11 +279,20 @@ const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebug
       <Container maxWidth="md">
         <Box my={2} textAlign="center">
           <Button variant="contained" onClick={handleDebugClick}
-              color={queryData.queryIsRunning ?  'error' : 'success'}
-              startIcon={queryData.queryIsRunning ?  <CancelIcon /> : <BugReportIcon />}
+              color={queryData.queryDebugIsRunning ?  'error' : 'success'}
+              startIcon={queryData.queryDebugIsRunning ?  <AnimLoadingComponent /> : <BugReportIcon />}
+              disabled={queryData.queryExecIsRunning}
             >
-            {queryData.queryIsRunning ? 'Cancel' : 'Debug'}
+            {queryData.queryDebugIsRunning ? 'Cancel' : 'Debug'}
           </Button>          
+          <Button variant="contained" onClick={handleExecClick} style={{ marginLeft: 16 }}
+              color={queryData.queryExecIsRunning ?  'error' : 'success'}
+              startIcon={queryData.queryExecIsRunning ?  <AnimLoadingComponent /> : <PlayCircleIcon />}
+              disabled={queryData.queryDebugIsRunning}
+            >
+            {queryData.queryExecIsRunning ? 'Cancel' : 'Run'}
+          </Button>          
+
           <Link href="https://gitlab.elixir-czech.cz/moos/idsm_debug_server/-/issues" target="_blank" rel="noopener noreferrer" style={{ marginLeft: 16 }}>
           Report Debugging Issue
           </Link>

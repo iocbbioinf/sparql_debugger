@@ -14,7 +14,7 @@ const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
 
 
   useImperativeHandle(ref, () => ({
-    handleExecuteQuery
+    handleDebugQuery
   }));
 
   const handleExpandedItemsChange = (
@@ -24,7 +24,7 @@ const DebugTreeView = forwardRef(({ endpoint, query, treeStyles }, ref) => {
     setExpandedItems(itemIds);
   };
 
-  const handleExecuteQuery = async () => {
+  const handleDebugQuery = async () => {
       unsubscribe();
       setTreeData({});
 

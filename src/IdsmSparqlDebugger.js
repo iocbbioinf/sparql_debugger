@@ -51,12 +51,24 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
     }
   }
 
+  const executeQuery = async() => {
+    yasgui.current.getTab().yasqe.query();
+  }
+
+  const abortQuery = async() => {
+    yasgui.current.getTab().yasqe.abortQuery();
+  }
 
   useImperativeHandle(ref, () => ({
     handleDebugClick: (debuggerId) => {
       console.log("MMO + IdsmSparqlDebugger");
 //      tabsDebugComponentMap.get(debuggerId)?.handleDebugClick();
       sparqlDebuggerRef.current?.handleDebugClick();
+    },
+
+    handleQueryResponse: (tab) => {            
+      const queryData = {...tabsDebugMap.get(tab.persistentJson.id), queryExecIsRunning: false};
+      setDebugTab(queryData);
     }
   }));
 
@@ -86,7 +98,9 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
           endpoint={getEndpoint}
           queryData={queryData}
           setDebugTab={setDebugTab}
-          processResponse={processResponse}          
+          processResponse={processResponse}        
+          executeQuery={executeQuery}  
+          abortQuery={abortQuery}
           ref={sparqlDebuggerRef}
         />
       )
@@ -101,7 +115,8 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
         treeData: {},
         renderData: [],
         expandedItems: [],
-        queryIsRunning: false        
+        queryDebugIsRunning: false,
+        queryExecIsRunning: false        
       };
 
       setTabsDebugMap((prevMap) => (new Map([
@@ -121,6 +136,8 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
             queryData={newTabState}
             setDebugTab={setDebugTab}
             processResponse={processResponse}
+            executeQuery={executeQuery}  
+            abortQuery={abortQuery}  
             ref={sparqlDebuggerRef}
           />
         )

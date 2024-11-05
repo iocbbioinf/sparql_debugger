@@ -25,3 +25,9 @@
     margin-top: 20px; /* Add margin to separate from the button */
     width: 100%; /* Ensure it takes full width */
   }
+
+  .yasqe_queryButton {
+    display: none !important;
+  }  
+
+  
