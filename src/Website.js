@@ -6,6 +6,8 @@ import { initMatomo } from "./matomo.js"
 
 import elixirLogo from "./logo-elixir.png";
 import uochbLogo from "./logo-uochb.png";
+import tacrLogo from "./logo-tacr.png";
+import einfraLogo from "./logo-einfra.png";
 
 import "./Website.scss";
 
@@ -24,12 +26,12 @@ function DataPrivacy() {
 
       <Modal centered size="lg" aria-labelledby="contained-modal-title-vcenter" show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">IDSM service data privacy</Modal.Title>
+          <Modal.Title id="contained-modal-title-vcenter">SPARQL Federated Query Debugger data privacy</Modal.Title>
         </Modal.Header>
 
         <Modal.Body className="text-justify">
           <p>
-            IDSM service is operated and maintained by <a target="_blank" rel="noreferrer"
+            SPARQL Federated Query Debugger is operated and maintained by <a target="_blank" rel="noreferrer"
             href="https://www.elixir-czech.cz/">ELIXIR CZ</a>. See also the <a target="_blank" rel="noreferrer"
             href="https://www.elixir-czech.cz/legal/terms-of-use">respective terms of use for all ELIXIR CZ services</a>.
           </p>
@@ -86,7 +88,8 @@ function Contacts() {
         <Modal.Body>
           <dl>
             <dt>Maintainer</dt>
-            <dd>Jakub Galgonek &lt;<a href="mailto:jakub.galgonek@uochb.cas.cz?subject=IDSM">jakub.galgonek@uochb.cas.cz</a>&gt;</dd>
+            <dd>Marek Moos &lt;<a href="mailto:marek.moos@uochb.cas.cz?subject=SPARQL Debugger">marek.moos@uochb.cas.cz</a>&gt;</dd>
+            <dd>Jakub Galgonek &lt;<a href="mailto:jakub.galgonek@uochb.cas.cz?subject=SPARQL Debugger">jakub.galgonek@uochb.cas.cz</a>&gt;</dd>
             <dt>Research group</dt>
             <dd><a target="_blank" rel="noreferrer" href="https://bioinformatics.group.uochb.cz/en">Bioinformatics</a></dd>
             <dt>Institution</dt>
@@ -132,7 +135,7 @@ function Website() {
       <Container fluid className="pt-1 mt-5 footer">
         <Row className="justify-content-center align-items-center">
           <Col lg="auto" md="auto" xs="auto" className="mb-1 px-4">
-            <span>&copy; 2018&ndash;2023 <a target="_blank" rel="noreferrer" href="https://www.uochb.cz/en">IOCB Prague</a></span>
+            <span>&copy; 2023&ndash;2024 <a target="_blank" rel="noreferrer" href="https://www.uochb.cz/en">IOCB Prague</a></span>
           </Col>
           <Col lg="auto" md="auto" xs={12} className="mb-0 p-0"/>
           <Col lg="auto" md="auto" xs="auto" className="mb-1 px-4">
@@ -147,6 +150,12 @@ function Website() {
           </Col>
           <Col lg="auto" md="auto" xs="auto" className="mb-1 px-4">
             <a target="_blank" rel="noreferrer" href="https://www.elixir-czech.cz/" className="d-block p-1"><Image src={elixirLogo} height={40}/></a>
+          </Col>
+          <Col lg="auto" md="auto" xs="auto" className="mb-1 px-4">
+            <a target="_blank" rel="noreferrer" href="https://tacr.cz/en/" className="d-block p-1"><Image src={tacrLogo} height={40}/></a>
+          </Col>
+          <Col lg="auto" md="auto" xs="auto" className="mb-1 px-4">
+            <a target="_blank" rel="noreferrer" href="https://www.e-infra.cz/en" className="d-block p-1"><Image src={einfraLogo} height={40}/></a>
           </Col>
         </Row>
       </Container>      

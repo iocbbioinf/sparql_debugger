@@ -2,178 +2,109 @@ import { endpointBase } from "../config";
 import { idn } from "../tag.js"
 
 
-const demoQueries = [{
-    name: "Simple standalone query examples",
+const demoQueries = [
+  {
+    name: "Examples with Biosoda",
+    description: "Biosoda: Federated template search over biological databases",
     queries: [{
-        name: "Substructure search",
-        description: "Search for structures containing aspirin as their substructure. The query structure is specified by SMILES.",
-        endpoint: endpointBase + "/sparql/endpoint/chebi",
+        name: "Retrieve proteins",
+        description: "Retrieve proteins which are the mouse's proteins encoded by genes which are expressed in the liver and are orthologous to human's INS gene.",
+        endpoint: "https://sparql.omabrowser.org/lode/servlet/query",
         query: idn`${0}
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-
-          SELECT * WHERE {
-            ?COMPOUND sachem:substructureSearch [
-                  sachem:query "CC(=O)Oc1ccccc1C(O)=O" ].
-          }`
-      },
-      {
-        name: "Substructure search by a MOL file",
-        description: "Search for all alpha amino acids (in their un-ionized forms). The query structure is specified by MOL.",
-        endpoint: endpointBase + "/sparql/endpoint/chebi",
-        query: idn`${0}
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-
-          SELECT * WHERE {
-            ?COMPOUND sachem:substructureSearch [
-                sachem:query '''
-          alpha amino acid
-
-            8  7  0  0  0  0  0  0  0  0999 V2000
-            233.0000  202.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-            260.7128  218.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-            205.2872  218.0000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
-            288.4256  202.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-            260.7128  250.0000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
-            288.4256  266.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
-            205.2872  250.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
-            177.5744  202.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
-            1  2  1  0  0  0  0
-            1  3  1  0  0  0  0
-            2  4  2  0  0  0  0
-            2  5  1  0  0  0  0
-            5  6  1  0  0  0  0
-            3  7  1  0  0  0  0
-            3  8  1  0  0  0  0
-          M  END''' ].
-          }`
-      },
-      {
-        name: "Similarity search with score values",
-        description: "Search for structures similar to ibuprofen. The query structure is specified by SMILES and the cutoff score is set as 0.8.",
-        endpoint: endpointBase + "/sparql/endpoint/chebi",
-        query: idn`${0}
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-
-          SELECT * WHERE {
-            [ sachem:compound ?COMPOUND;
-              sachem:score ?SCORE ] sachem:similaritySearch [
-                    sachem:query "CC(C)Cc1ccc(cc1)C(C)C(O)=O";
-                    sachem:cutoff "0.8"^^xsd:double ].
-          }`
-      },
-      {
-        name: "Simple similarity search",
-        description: "A simpler variant of the previous example; the simpler syntax is especially useful in cases when the exact similarity score is irrelevant.",
-        endpoint: endpointBase + "/sparql/endpoint/chebi",
-        query: idn`${0}
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-
-          SELECT * WHERE {
-            ?COMPOUND sachem:similarCompoundSearch [
-                sachem:query "CC(C)Cc1ccc(cc1)C(C)C(O)=O";
-                sachem:cutoff "0.8"^^xsd:double ].
-          }`
-      },
-      {
-        name: "Multiple substructure search",
-        description: "Search for compounds that contain any of the specified substructures; in this case, we search for several penicillin-related antibiotics.",
-        endpoint: endpointBase + "/sparql/endpoint/chebi",
-        query: idn`${0}
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-
-          SELECT ?COMPOUND ?QUERY WHERE {
-            VALUES (?QUERY ?SMILES) {
-              ("clometocillin" "CC1(C(N2C(S1)C(C2=O)NC(=O)C(C3=CC(=C(C=C3)Cl)Cl)OC)C(=O)O)C")
-              ("carbenicillin" "CC1(C(N2C(S1)C(C2=O)NC(=O)C(C3=CC=CC=C3)C(=O)O)C(=O)O)C")
-              ("ampicillin" "CC1(C(N2C(S1)C(C2=O)NC(=O)C(C3=CC=CC=C3)N)C(=O)O)C")
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX up: <http://purl.uniprot.org/core/>
+        PREFIX genex: <http://purl.org/genex#>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>
+        PREFIX orth: <http://purl.org/net/orth#>
+        PREFIX sio: <http://semanticscience.org/resource/>
+        PREFIX lscr: <http://purl.org/lscr#>
+        SELECT ?name1 ?protein1 ?name2 ?protein2 ?OMA_link2 ?anatomicalEntity {
+          SELECT DISTINCT * {
+            SERVICE <https://www.bgee.org/sparql/> {
+              ?taxon up:commonName 'human' ;
+                up:commonName ?name1 .
+              ?taxon2 up:commonName 'mouse' ;
+                up:commonName ?name2 .
             }
-
-            ?COMPOUND sachem:substructureSearch [
-                sachem:query ?SMILES ].
-          }`
+            SERVICE <https://sparql.omabrowser.org/sparql/> {
+              ?cluster a orth:OrthologsCluster .
+              ?cluster orth:hasHomologousMember ?node1 .
+              ?cluster orth:hasHomologousMember ?node2 .
+              ?node2 orth:hasHomologousMember* ?protein2 .
+              ?node1 orth:hasHomologousMember* ?protein1 .
+              ?protein1 a orth:Protein .
+              ?protein1 rdfs:label 'INS' ;
+                orth:organism/obo:RO_0002162 ?taxon .
+              ?protein2 a orth:Protein ;
+                sio:SIO_010079 ?gene ; #is encoded by
+                orth:organism/obo:RO_0002162 ?taxon2 .
+              ?gene lscr:xrefEnsemblGene ?geneEns .
+              ?protein2 rdfs:seeAlso ?OMA_link2 .
+              FILTER ( ?node1 != ?node2 )
+            }
+            SERVICE <https://www.bgee.org/sparql/> {
+              ?geneB a orth:Gene .
+                ?geneB genex:isExpressedIn ?cond .
+                ?cond genex:hasAnatomicalEntity ?anat .
+                ?geneB lscr:xrefEnsemblGene ?geneEns .
+              ?anat rdfs:label 'liver' ;
+                rdfs:label ?anatomicalEntity .
+              ?geneB orth:organism ?o .
+              ?o obo:RO_0002162 ?taxon2 .
+            }
+          }
+          LIMIT 10
+        }
+        LIMIT 10`
+      },
+      {
+        name: "Retrieve genes",
+        description: "Retrieve genes which are the orthologs of a gene that is expressed in the fruit fly's brain.",
+        endpoint: "https://sparql.omabrowser.org/lode/servlet/query",
+        query: idn`${0}
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX up: <http://purl.uniprot.org/core/>
+        PREFIX genex: <http://purl.org/genex#>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>
+        PREFIX orth: <http://purl.org/net/orth#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        SELECT DISTINCT ?id ?OMA_LINK WHERE {
+          SELECT * {
+            SERVICE <https://www.bgee.org/sparql/> {
+              SELECT DISTINCT ?gene ?id {
+                ?gene a orth:Gene .
+                ?gene genex:isExpressedIn ?anat .
+                ?anat rdfs:label 'brain' .
+                ?gene orth:organism ?o .
+                ?o obo:RO_0002162 ?taxon .
+                ?gene dcterms:identifier ?id .
+                ?taxon up:commonName 'fruit fly' .
+              }
+              LIMIT 100
+            }
+            SERVICE <https://sparql.omabrowser.org/lode/sparql> {
+              ?cluster a orth:OrthologsCluster .
+              ?cluster orth:hasHomologousMember ?node1 .
+              ?cluster orth:hasHomologousMember ?node2 .
+              ?node2 orth:hasHomologousMember* ?protein2 .
+              ?node1 orth:hasHomologousMember* ?protein1 .
+              ?protein1 dcterms:identifier ?id .
+              ?protein2 rdfs:seeAlso ?OMA_LINK .
+              FILTER ( ?node1 != ?node2 )
+            }
+          }
+        }
+        LIMIT 10`
       }]
   },
+
   {
-    name: "Interoperability examples with ChEBI",
-    description: "Due to availability of official ChEBI RDF service, these examples currently use a custom mirror of ChEBI.",
-    queries: [{
-        name: "ChEBI interoperability",
-        description: "Search for aspirin substructure, also fetching some related compound metadata (labels) from ChEBI.",
-        endpoint: endpointBase + "/sparql/endpoint/idsm",
-        query: idn`${0}
-          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX endpoint: <${endpointBase}/sparql/endpoint/>
-
-          SELECT * WHERE {
-            SERVICE endpoint:chebi {
-              ?COMPOUND sachem:substructureSearch
-                  [ sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
-            }
-            ?COMPOUND rdfs:label ?o
-          }`
-      },
-      {
-        name: "ChEBI compounds with a specific role of substructures",
-        description: "Search for ChEBI compounds containing any substructure anotated as the leprostatic drug (CHEBI:35816).",
-        endpoint: endpointBase + "/sparql/endpoint/idsm",
-        query: idn`${0}
-          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-          PREFIX owl: <http://www.w3.org/2002/07/owl#>
-          PREFIX obo: <http://purl.obolibrary.org/obo/>
-          PREFIX chebi: <http://purl.obolibrary.org/obo/chebi/>
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX endpoint: <${endpointBase}/sparql/endpoint/>
-          PREFIX sio: <http://semanticscience.org/resource/>
-
-          SELECT DISTINCT ?COMPOUND WHERE {
-            ?DRUG rdfs:subClassOf [ rdf:type owl:Restriction;
-                owl:onProperty obo:RO_0000087;
-                owl:someValuesFrom obo:CHEBI_35816 ].
-
-            SERVICE endpoint:chebi {
-              [ rdf:type sio:SIO_011120;
-                  sio:is-attribute-of ?DRUG;
-                  sio:has-value ?MOLFILE ].
-
-              ?COMPOUND sachem:substructureSearch [
-                  sachem:query ?MOLFILE ].
-            }
-          }`
-      },
-      {
-        name: "ChEBI Compound properties and roles",
-        description: "Display all possible roles of compounds that contain aspirin. The query uses the EBI endpoint for retrieving roles of compounds that contain aspirin, which are in turn retrieved from the IOCB endpoint.",
-        endpoint: endpointBase + "/sparql/endpoint/idsm",
-        query: idn`${0}
-          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX endpoint: <${endpointBase}/sparql/endpoint/>
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-          PREFIX owl: <http://www.w3.org/2002/07/owl#>
-          PREFIX obo: <http://purl.obolibrary.org/obo/>
-
-          SELECT DISTINCT ?role ?label WHERE {
-            SERVICE endpoint:chebi {
-              ?COMPOUND sachem:substructureSearch
-                  [ sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
-            }
-
-            ?COMPOUND rdfs:subClassOf [ rdf:type owl:Restriction ;
-              owl:onProperty obo:RO_0000087 ;
-              owl:someValuesFrom ?role ].
-            ?role rdfs:label ?label.
-          }`
-      }]
-  },
-  {
-    name: "Interoperability examples with neXtProt & UniProt",
+    name: "Examples with neXtProt & UniProt",
     description: "Due to availability of official ChEMBL RDF service, these examples currently use a custom mirror of ChEMBL.",
     queries: [{
-        name: "UniProt interoperability",
+        name: "UniProt query",
         description: "Search for all proteins in UniProt that have some measured activity with any compound that contains aspirin, and fetch the scientific name of the organism from which the protein originated.",
         endpoint: "https://sparql.uniprot.org",
         query: idn`${0}
@@ -205,7 +136,7 @@ const demoQueries = [{
           }`
       },
       {
-        name: "neXtProt interoperability",
+        name: "neXtProt queries",
         description: "Search for all proteins in neXtProt that have some measured activity with any compound that contains aspirin.",
         endpoint: "https://sparql.nextprot.org/",
         query: idn`${0}
@@ -241,7 +172,7 @@ const demoQueries = [{
           }`
       },
       {
-        name: "neXtProt interoperability (via UniProt)",
+        name: "neXtProt query (via UniProt)",
         description: "Ask the neXtProt SPARQL endpoint to fetch aspirin-containing compounds and find UniProt proteins which have some measured activity with them, filtering the result using the UniProt class annotation to only display surface antigens.",
         endpoint: "https://sparql.nextprot.org",
         query: idn`${0}
@@ -279,7 +210,7 @@ const demoQueries = [{
           }`
       },
       {
-        name: "neXtProt interoperability (via PDB)",
+        name: "neXtProt queries (via PDB)",
         description: "Ask the same query as in previous example, but use PDB identifiers to link the results together.",
         endpoint: "https://sparql.nextprot.org",
         query: idn`${0}
@@ -317,9 +248,9 @@ const demoQueries = [{
           }`
       }]
   },{
-    name: "Interoperability examples with Rhea & UniProt",
+    name: "Examples with Rhea & UniProt",
     queries: [{
-        name: "Rhea interoperability",
+        name: "Rhea query",
         description: "Retrieve the Rhea biochemical reactions that involve cholesterol or cholesterol derivatives",
         endpoint: "https://sparql.rhea-db.org/sparql",
         query: idn`${0}

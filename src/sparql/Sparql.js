@@ -72,43 +72,13 @@ function Sparql() {
       <Row>
         <Col xl={3} lg={4} md={5} sm={12} className="sparql-panel mb-4">
 
-          <h2>IDSM SPARQL endpoints</h2>
+          <h2>SPARQL Federated Query Debugger</h2>
           <p>
-              This page allows you to access the IDSM functionality through a SPARQL web-interface (on the right), and connect the search results to the data from other services. For a quick start, you may select a query example from the list below.
+            Detailed execution data can help identify the specific service responsible for an error or high latency, even if it is deeply nested within the query structure.
           </p>
           <p>
-            <a target="_blank" href="/sparql/doc/manual.html"><Icon icon={faBook}/> User manual is available.</a>
+            <a target="_blank" href="/sparql/doc/manual.html"><Icon icon={faBook}/> Docs </a>
           </p>
-
-          <Accordion>
-            <Card>
-              <Card.Header>
-                <CustomToggle variant="outline-success" block eventKey="0">
-                  <Icon icon={faInfoCircle}/> Database status
-                </CustomToggle>
-              </Card.Header>
-              <Accordion.Collapse eventKey="0">
-                <Card.Body className="mt-2">
-                  <Statistics url={servletBase + "/endpoint/statistics.json"}/>
-                </Card.Body>
-              </Accordion.Collapse>
-            </Card>
-          </Accordion>
-
-          <Accordion onSelect={e => setStatusIsOpen(e != null)}>
-            <Card>
-              <Card.Header>
-                <CustomToggle variant="outline-success" block eventKey="0">
-                  <Icon icon={faServer}/> SPARQL endpoint status
-                </CustomToggle>
-              </Card.Header>
-              <Accordion.Collapse eventKey="0">
-                <Card.Body className="mt-2">
-                  <Status endpoints={endpoints} isShown={statusIsOpen}/>
-                </Card.Body>
-              </Accordion.Collapse>
-            </Card>
-          </Accordion>
 
           <Accordion>
             {
@@ -134,9 +104,7 @@ function Sparql() {
                               <Accordion.Collapse eventKey={'' + subindex}>
                                 <Card.Body>
                                   <p>{demo.description}</p>
-                                  <Button onClick={() => {yasgui.current.demo(demo, true)}}><Icon icon={faPlay}/> Run demo</Button>
-                                  {' '}
-                                  <Button variant="secondary" onClick={() => {yasgui.current.demo(demo, false)}}><Icon icon={faEdit}/> Edit query</Button>
+                                  <Button onClick={() => {yasgui.current.demo(demo, false)}}><Icon icon={faEdit}/> Edit query</Button>
                                 </Card.Body>
                               </Accordion.Collapse>
                             </Card>
