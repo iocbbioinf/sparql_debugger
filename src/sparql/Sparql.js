@@ -77,7 +77,7 @@ function Sparql() {
             Detailed execution data can help identify the specific service responsible for an error or high latency, even if it is deeply nested within the query structure.
           </p>
           <p>
-            <a target="_blank" href="/sparql/doc/manual.html"><Icon icon={faBook}/> Docs </a>
+            <a target="_blank" href="https://github.com/iocbbioinf/sparql_debugger"><Icon icon={faBook}/> Docs </a>
           </p>
 
           <Accordion>

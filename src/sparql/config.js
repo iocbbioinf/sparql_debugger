@@ -6,16 +6,39 @@ const corsProxy = endpointBase + "/sparql/endpoint/proxy";
 
 
 const defaultQuery = idn`${0}
-  PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX chembl: <http://rdf.ebi.ac.uk/terms/chembl#>
+PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
+PREFIX endpoint: <https://idsm.elixir-czech.cz/sparql/endpoint/>
+PREFIX nextprot: <http://nextprot.org/rdf#>
 
-  SELECT * WHERE {
-  ?COMPOUND sachem:substructureSearch [
-      sachem:query "CC(=O)Oc1ccccc1C(O)=O" ].
+SELECT ?COMPOUND ?ENTRY WHERE
+{
+  {
+    SELECT ?COMPOUND ?UNIPROT WHERE {
+      SERVICE endpoint:idsm {
+        SERVICE endpoint:chembl {
+          ?COMPOUND sachem:substructureSearch [
+              sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
+        }
+
+        ?ACTIVITY rdf:type chembl:Activity;
+          chembl:hasMolecule ?COMPOUND;
+          chembl:hasAssay ?ASSAY.
+        ?ASSAY chembl:hasTarget ?TARGET.
+        ?TARGET chembl:hasTargetComponent ?COMPONENT.
+        ?COMPONENT chembl:targetCmptXref ?UNIPROT.
+        ?UNIPROT rdf:type chembl:UniprotRef.
+      }
+    }
   }
-  LIMIT 1000`
+
+  ?ENTRY skos:exactMatch ?UNIPROT.
+}`
 
 
-const defaultEndpoint = endpointBase + "/sparql/endpoint/idsm";
+const defaultEndpoint = "https://sparql.nextprot.org/";
 
 
 const simpleCheckQuery = idn`${0}
