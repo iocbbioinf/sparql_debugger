@@ -182,14 +182,13 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   });
   
 
-  const DebugTreeView = forwardRef(({ endpoint, query, queryData, setDebugTab, processResponse}, ref) => {
+  const DebugTreeView = forwardRef(({ disabled, endpoint, query, queryData, setDebugTab, processResponse}, ref) => {
 
     useImperativeHandle(ref, () => ({
       handleDebugQuery,
       handleStopQuery,
 
     }));
-
 
 
     const handleExpandedItemsChange = (event, itemIds) => {
@@ -225,6 +224,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     };
 
     return (
+      !queryData.queryDebugIsCanceled &&
       <Box sx={{ minHeight: 90, flexGrow: 1, maxWidth: 400 }}>
         <RichTreeView
           aria-label="icon expansion"
@@ -245,7 +245,9 @@ const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebug
     if(queryData.queryDebugIsRunning) {
       debugTreeViewRef.current.handleStopQuery()
       setDebugTab({...queryData,           
-        queryDebugIsRunning: false})
+        queryDebugIsRunning: false,
+        queryDebugIsCanceled: true
+      })
     } else {      
       setTimeout(() => {
         if (debugTreeViewRef.current) {
@@ -253,7 +255,9 @@ const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebug
         }
       }, 0);  
       setDebugTab({...queryData,           
-        queryDebugIsRunning: true})
+        queryDebugIsRunning: true,
+        queryDebugIsCanceled: false}
+        )
     }
   };
 

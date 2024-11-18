@@ -74,8 +74,9 @@ function Sparql() {
 
           <h2>SPARQL Federated Query Debugger</h2>
           <p>
-            Detailed execution data can help identify the specific service responsible for an error or high latency, even if it is deeply nested within the query structure.
+            Detailed execution data can help identify the specific service responsible for an error or high latency, even if it is deeply nested within the query structure.  
           </p>
+          
           <p>
             <a target="_blank" href="https://github.com/iocbbioinf/sparql_debugger"><Icon icon={faBook}/> Docs </a>
           </p>
@@ -117,6 +118,12 @@ function Sparql() {
               )
             }
           </Accordion>
+
+          <p/>
+          <p>
+            A great source of federated SPARQL query examples is available on the <a target="_blank" href="https://biosoda.expasy.org/">BioSODA </a>.
+          </p>
+
         </Col>
 
         <Col xl={6} lg={5} md={4} sm={12} style={{position: "inherit"}}>

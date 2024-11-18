@@ -397,8 +397,8 @@ const demoQueries = [
       }]
 },
 {
-  name: "Examples with Biosoda demonstrates bulk service node",
-  description: "Biosoda: Federated template search over biological databases",
+  name: "Example from BioSODA demonstrates bulk service node",
+  description: "BioSODA: Federated template search over biological databases",
   queries: [{
       name: "Retrieve proteins",
       description: "Retrieve proteins which are the mouse's proteins encoded by genes which are expressed in the liver and are orthologous to human's INS gene.",

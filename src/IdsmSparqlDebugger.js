@@ -116,7 +116,8 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
         renderData: [],
         expandedItems: [],
         queryDebugIsRunning: false,
-        queryExecIsRunning: false        
+        queryExecIsRunning: false,
+        queryDebugIsCanceled: false      
       };
 
       setTabsDebugMap((prevMap) => (new Map([
