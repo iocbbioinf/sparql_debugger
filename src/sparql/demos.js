@@ -402,7 +402,7 @@ const demoQueries = [
   queries: [{
       name: "Retrieve proteins",
       description: "Retrieve proteins which are the mouse's proteins encoded by genes which are expressed in the liver and are orthologous to human's INS gene.",
-      endpoint: "https://sparql.omabrowser.org/lode/servlet/query",
+      endpoint: "https://idsm.elixir-czech.cz/sparql/endpoint/idsm",
       query: idn`${0}
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>

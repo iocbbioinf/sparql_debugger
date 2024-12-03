@@ -32,7 +32,7 @@ function CustomToggle(props) {
 
 function Sparql() {
   React.useEffect(() => {
-    document.title = "IDSM / SPARQL GUI";
+    document.title = "SPARQL Debugger";
     trackPageView();
   }, []);
 
@@ -121,7 +121,7 @@ function Sparql() {
 
           <p/>
           <p>
-            A great source of federated SPARQL query examples is available on the <a target="_blank" href="https://biosoda.expasy.org/">BioSODA </a>.
+            A great source of federated SPARQL query examples is available on the <a target="_blank" href="https://biosoda.expasy.org/build_biosodafrontend/">BioSODA </a>.
           </p>
 
         </Col>

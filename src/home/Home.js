@@ -35,7 +35,7 @@ function HomeCarousel() {
           fluid
           className="carousel-page d-flex flex-column justify-content-center text-white"
         >
-          <h1>Integrated Database of Small Molecules</h1>
+          <h1>SPARQL Federated Query Debugger</h1>
           <p>
             IDSM provides unique source of fast similarity and structural search
             functionality in databases such as ChEMBL, ChEBI or PubChem. The
