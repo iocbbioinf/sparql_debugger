@@ -182,7 +182,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   });
   
 
-  const DebugTreeView = forwardRef(({ disabled, endpoint, query, queryData, setDebugTab, processResponse}, ref) => {
+  const DebugTreeView = forwardRef(({ disabled, endpoint, query, queryData, updateDebugTab, setDebugTab, processResponse}, ref) => {
 
     useImperativeHandle(ref, () => ({
       handleDebugQuery,
@@ -202,7 +202,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
         query: `${query()}`
       }
     
-      if(queryData.queryId) {
+      if(queryData.queryId) { 
         deleteQuery(queryData.queryId);
       }
       if(queryData.eventSource) {
@@ -212,7 +212,9 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
       var emptyData = {...queryData,           
         treeData: {}, expandedItems: [], renderData: []}
 
-      subscribeToUpdates(params, emptyData, setDebugTab, processResponse)
+      setDebugTab(emptyData)
+
+      subscribeToUpdates(params, queryData.tabKey, updateDebugTab, setDebugTab, processResponse)
 
     }
     
@@ -238,7 +240,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebugTab, processResponse, executeQuery, abortQuery}, ref) => {
+const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, updateDebugTab, setDebugTab, processResponse, executeQuery, abortQuery}, ref) => {
   const debugTreeViewRef = useRef(null);
 
   const handleDebugClick = () => {
@@ -301,7 +303,7 @@ const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, setDebug
           Report Debugging Issue
           </Link>
         </Box>
-        <DebugTreeView endpoint={endpoint} query={query} queryData={queryData} setDebugTab={setDebugTab} processResponse={processResponse} 
+        <DebugTreeView endpoint={endpoint} query={query} queryData={queryData} updateDebugTab={updateDebugTab} setDebugTab={setDebugTab} processResponse={processResponse} 
            ref={debugTreeViewRef}/>
       </Container>
     </ThemeProvider>

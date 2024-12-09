@@ -97,6 +97,7 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
           query={getQuery}
           endpoint={getEndpoint}
           queryData={queryData}
+          updateDebugTab={updateDebugTab}
           setDebugTab={setDebugTab}
           processResponse={processResponse}        
           executeQuery={executeQuery}  
@@ -105,6 +106,16 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
         />
       )
       ]])))
+  }
+
+
+  const updateDebugTab = (tabKey, handleUpdateDebugTab) => {
+    setTabsDebugMap((prevMap) => {
+      const queryData = prevMap.get(tabKey);
+      handleUpdateDebugTab(queryData);
+
+      return prevMap;
+    })
   }
 
   useEffect(() => {

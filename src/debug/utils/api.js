@@ -2,13 +2,12 @@ import axios from "axios";
 import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl, HTML_SUFFIX, XML_SUFFIX, JSON_SUFFIX, TEXT_SUFFIX} from "./constants"
 import { v4 as uuidv4 } from "uuid";
 
-export const subscribeToUpdates = (params, queryData, setDebugTab, processResponse) => {
+export const subscribeToUpdates = (params, tabKey, updateDebugTab, setDebugTab, processResponse) => {
+
 
   let eventSource = null;
   let queryId = null;
   
-  var newQueryData =  {...{}, ...queryData};
-
   const encodedParams = Object.keys(params)
     .map((key) => {
       return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
@@ -31,50 +30,56 @@ export const subscribeToUpdates = (params, queryData, setDebugTab, processRespon
     eventSource = new EventSource(sseUrl, { withCredentials: true });
   
     eventSource.onmessage = function (event) {
+
       console.log("New event from server:", event.data);
   
       const eventData = JSON.parse(event.data);
       queryId = eventData.queryId;
   
-      refreshTree(eventData, newQueryData)
-  
-      if(newQueryData.treeData.root.data.state !== PENDING_STATE) {
-        newQueryData["queryDebugIsRunning"] = false;
-      }  
-  
-      newQueryData.renderData = [refreshRenderTree(addBulkNodes(newQueryData.treeData))]
-      newQueryData.eventSource = eventSource
-      newQueryData.queryId = queryId
-      
-      setDebugTab(newQueryData);
+      const handleUpdateDebugTab = (newQueryData) => {
 
-      if(eventData.nodeId === newQueryData.treeData.root.data.nodeId && eventData.queryId === newQueryData.treeData.root.data.queryId && 
-        (eventData.state === SUCCESS_STATE || eventData.state === FAILURE_STATE)) {
-
-        const response = {
-          tabKey: newQueryData.tabKey,
-          contentType: newQueryData.treeData.root.data.contentType[0],
-          status: newQueryData.treeData.root.data.httpStatus,
-          executionTime: newQueryData.treeData.root.data.endTime - newQueryData.treeData.root.data.startTime
-        }
+        refreshTree(eventData, newQueryData)
+  
+        if(newQueryData.treeData.root.data.state !== PENDING_STATE) {
+  
+          newQueryData["queryDebugIsRunning"] = false;
+        }  
+    
+        newQueryData.renderData = [refreshRenderTree(addBulkNodes(newQueryData.treeData))]
+        newQueryData.eventSource = eventSource
+        newQueryData.queryId = queryId
         
-        const fullUrl = `${baseUrl}/query/${newQueryData.treeData.root.data.queryId}/call/${newQueryData.treeData.root.data.nodeId}/response`;
-
-        fetch(fullUrl, {
-          headers: {
-            'Accept-Encoding': 'gzip,deflate'
-          },
-          'credentials': 'include'
-        }).then(fetchResp => {
-          response.data = fetchResp.text()
-          .then(text => {
-            response.data=text;
-            processResponse(response)
+        setDebugTab(newQueryData);
+  
+        if(eventData.nodeId === newQueryData.treeData.root.data.nodeId && eventData.queryId === newQueryData.treeData.root.data.queryId && 
+          (eventData.state === SUCCESS_STATE || eventData.state === FAILURE_STATE)) {
+  
+          const response = {
+            tabKey: newQueryData.tabKey,
+            contentType: newQueryData.treeData.root.data.contentType[0],
+            status: newQueryData.treeData.root.data.httpStatus,
+            executionTime: newQueryData.treeData.root.data.endTime - newQueryData.treeData.root.data.startTime
+          }
+          
+          const fullUrl = `${baseUrl}/query/${newQueryData.treeData.root.data.queryId}/call/${newQueryData.treeData.root.data.nodeId}/response`;
+  
+          fetch(fullUrl, {
+            headers: {
+              'Accept-Encoding': 'gzip,deflate'
+            },
+            'credentials': 'include'
+          }).then(fetchResp => {
+            response.data = fetchResp.text()
+            .then(text => {
+              response.data=text;
+              processResponse(response)
+            })
           })
-        })
+        }  
       }
-    };  
 
+      updateDebugTab(tabKey, handleUpdateDebugTab);
+    }
   
     eventSource.onerror = function (err) {
       console.error("EventSource failed:", err);
@@ -193,7 +198,7 @@ function addBulkNodes(treeData) {
       const duration = Math.max(...x.map(child => child.data.endTime).filter(time => time != null)) - Math.min(...x.map(child => child.data.startTime).filter(time => time != null));
             
       return {
-        data: {nodeId: uuidv4(), isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState, duration: duration}, 
+        data: {nodeId: "bulk_" + treeData.children[0].data.nodeId, isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState, duration: duration}, 
         children: x.map((child) => addBulkNodes(child))
       }
   })  
