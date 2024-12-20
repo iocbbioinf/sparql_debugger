@@ -182,7 +182,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
   });
   
 
-  const DebugTreeView = forwardRef(({ disabled, endpoint, query, queryData, updateDebugTab, setDebugTab, processResponse}, ref) => {
+  const DebugTreeView = forwardRef(({ disabled, endpoint, query, requestConfig, queryData, updateDebugTab, setDebugTab, processResponse}, ref) => {
 
     useImperativeHandle(ref, () => ({
       handleDebugQuery,
@@ -199,7 +199,8 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     const handleDebugQuery = async () => {
       const params = {
         endpoint: `${endpoint()}`,
-        query: `${query()}`
+        query: `${query()}`,
+        requestcontext: `${JSON.stringify(requestConfig())}`
       }
     
       if(queryData.queryId) { 
@@ -240,7 +241,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
     );
 });
 
-const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, updateDebugTab, setDebugTab, processResponse, executeQuery, abortQuery}, ref) => {
+const SparqlDebugger = forwardRef(({ theme, query, endpoint, requestConfig, queryData, updateDebugTab, setDebugTab, processResponse, executeQuery, abortQuery}, ref) => {
   const debugTreeViewRef = useRef(null);
 
   const handleDebugClick = () => {
@@ -303,7 +304,7 @@ const SparqlDebugger = forwardRef(({ theme, query, endpoint, queryData, updateDe
           Report Debugging Issue
           </Link>
         </Box>
-        <DebugTreeView endpoint={endpoint} query={query} queryData={queryData} updateDebugTab={updateDebugTab} setDebugTab={setDebugTab} processResponse={processResponse} 
+        <DebugTreeView endpoint={endpoint} query={query} requestConfig={requestConfig} queryData={queryData} updateDebugTab={updateDebugTab} setDebugTab={setDebugTab} processResponse={processResponse} 
            ref={debugTreeViewRef}/>
       </Container>
     </ThemeProvider>

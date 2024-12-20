@@ -6,14 +6,28 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
 spec:
   tls:
     - hosts:
         - "idsm-react-debugger-1.dyn.cloud.e-infra.cz"
-      secretName: idsm-react-debugger-1-dyn-cloud-e-infra-cz-tls
+      secretName: idsm-react-debugger-1.dyn.cloud.e-infra.cz-tls
+    - hosts:
+        - "sparql-debugger.elixir-czech.cz"
+      secretName: sparql-debugger.elixir-czech.cz-tls
   rules:
     - host: "idsm-react-debugger-1.dyn.cloud.e-infra.cz"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: idsm-react-debug
+                port:
+                  number: 80
+
+    - host: "sparql-debugger.elixir-czech.cz"
       http:
         paths:
           - path: /

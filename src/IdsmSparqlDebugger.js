@@ -82,6 +82,11 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
     return yasgui.current.getCurrentEndpoint()
   }
 
+  const getRequestConfig = () => {
+    return yasgui.current.getCurrentConfig()
+  }
+
+
   const setDebugTab = (queryData) => {
     setTabsDebugMap((preMap) => new Map([
       ...preMap.entries(),
@@ -96,6 +101,7 @@ const IdsmSparqlDebugger = forwardRef(({ yasgui, currentTabKey}, ref) => {
           theme={theme}
           query={getQuery}
           endpoint={getEndpoint}
+          requestConfig={getRequestConfig}
           queryData={queryData}
           updateDebugTab={updateDebugTab}
           setDebugTab={setDebugTab}

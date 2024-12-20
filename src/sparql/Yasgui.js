@@ -89,6 +89,10 @@ class Yasgui extends React.Component {
     return this.yasgui.getTab().endpointSelect.value
   }
 
+  getCurrentConfig() {
+    return this.yasgui.getTab().getRequestConfig();
+  }
+
   setResponse(response) {
     this.yasgui.getTab().yasr.setResponse(response);
   }

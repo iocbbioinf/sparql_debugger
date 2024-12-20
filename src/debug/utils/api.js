@@ -2,7 +2,7 @@ import axios from "axios";
 import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl, HTML_SUFFIX, XML_SUFFIX, JSON_SUFFIX, TEXT_SUFFIX} from "./constants"
 import { v4 as uuidv4 } from "uuid";
 
-export const subscribeToUpdates = (params, tabKey, updateDebugTab, setDebugTab, processResponse) => {
+export const subscribeToUpdates = (params, tabKey, updateDebugTab, setDebugTab, processResponse, requestConfig) => {
 
 
   let eventSource = null;
@@ -20,6 +20,8 @@ export const subscribeToUpdates = (params, tabKey, updateDebugTab, setDebugTab, 
   axios.post(fullUrl, null, {
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+//        'Accept': 'application/sparql-results+xml,*/*;q=0.9'
+//        'test1': 'value1'
     },
     withCredentials: true
   }).then((response) => {
