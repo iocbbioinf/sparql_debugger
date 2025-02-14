@@ -46,8 +46,8 @@ export const subscribeToUpdates = (params, tabKey, updateDebugTab, setDebugTab, 
   
           newQueryData["queryDebugIsRunning"] = false;
         }  
-    
-        newQueryData.renderData = [refreshRenderTree(addBulkNodes(newQueryData.treeData))]
+
+        newQueryData.renderData = [refreshRenderTree(addBulkNodes(newQueryData.treeData))]    
         newQueryData.eventSource = eventSource
         newQueryData.queryId = queryId
         
@@ -184,7 +184,7 @@ function addBulkNodes(treeData) {
     const childGroup = groupBy(treeData.children, "serviceCallId");
 
     const childMultiGroup = Object.values(childGroup).filter(x => x.length > 1);
-  
+
     const bulkChildrenNodes = Object.values(childMultiGroup).map(x => {
       var bulkState;
       if(treeData.data.state !== PENDING_STATE) {
@@ -200,7 +200,7 @@ function addBulkNodes(treeData) {
       const duration = Math.max(...x.map(child => child.data.endTime).filter(time => time != null)) - Math.min(...x.map(child => child.data.startTime).filter(time => time != null));
             
       return {
-        data: {nodeId: "bulk_" + treeData.children[0].data.nodeId, isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState, duration: duration}, 
+        data: {nodeId: "bulk_" + x[0].data.nodeId, isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState, duration: duration}, 
         children: x.map((child) => addBulkNodes(child))
       }
   })  
