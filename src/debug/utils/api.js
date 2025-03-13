@@ -1,5 +1,5 @@
 import axios from "axios";
-import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl, HTML_SUFFIX, XML_SUFFIX, JSON_SUFFIX, TEXT_SUFFIX} from "./constants"
+import {PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl, HTML_SUFFIX, XML_SUFFIX, JSON_SUFFIX, TEXT_SUFFIX, BULK_MAX_TYPE_SIZE, ETC_STATE} from "./constants"
 import { v4 as uuidv4 } from "uuid";
 
 export const subscribeToUpdates = (params, tabKey, updateDebugTab, setDebugTab, processResponse, requestConfig) => {
@@ -186,6 +186,35 @@ function addBulkNodes(treeData) {
     const childMultiGroup = Object.values(childGroup).filter(x => x.length > 1);
 
     const bulkChildrenNodes = Object.values(childMultiGroup).map(x => {
+
+      var errChildren = x.filter(node => node.data.state === FAILURE_STATE)
+
+      var isCut = false
+      if(errChildren.length > BULK_MAX_TYPE_SIZE) {
+        isCut = true
+        errChildren = errChildren.slice(0,BULK_MAX_TYPE_SIZE)
+      }
+      
+      var okChildren = x.filter(node => node.data.state === SUCCESS_STATE)
+      if(okChildren.length > BULK_MAX_TYPE_SIZE) {
+        isCut = true
+        okChildren = okChildren.slice(0,BULK_MAX_TYPE_SIZE)
+      }
+
+      var pendingChildren = x.filter(node => node.data.state === PENDING_STATE)
+      if(pendingChildren.length > BULK_MAX_TYPE_SIZE) {
+        isCut = true
+        pendingChildren = pendingChildren.slice(0,BULK_MAX_TYPE_SIZE)
+      }
+
+      var filteredChildren = x
+      if(isCut) {
+        filteredChildren = errChildren.sort((a, b) => a.data.startTime - b.data.startTime)
+          .concat(okChildren.sort((a, b) => a.data.startTime - b.data.startTime))
+          .concat(pendingChildren.sort((a, b) => a.data.startTime - b.data.startTime))
+        filteredChildren.push({data: {nodeId: "etc_" + x[0].data.nodeId, state: ETC_STATE}})
+      }
+
       var bulkState;
       if(treeData.data.state !== PENDING_STATE) {
         if(x.every((child) => child.data.state === SUCCESS_STATE)) {
@@ -201,7 +230,7 @@ function addBulkNodes(treeData) {
             
       return {
         data: {nodeId: "bulk_" + x[0].data.nodeId, isBulk: true, bulkSize: x.length, endpoint: x[0].data.endpoint, state: bulkState, duration: duration}, 
-        children: x.map((child) => addBulkNodes(child))
+        children: filteredChildren.map((child) => addBulkNodes(child))
       }
   })  
   

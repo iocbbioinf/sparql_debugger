@@ -15,12 +15,14 @@ function ReqRespIconButton({ queryId, nodeId, isRequest, resultType }) {
   const [fileBlob, setFileBlob] = useState(null);
 
   const PREVIEW_LENGTH = 2000;
+  const PREVIEW_LONG_LENGTH = 200000;
 
   const fetchPreviewContent = useCallback(async (queryId, callId, isRequest) => {
     const reqResp = isRequest ? "request" : "response";
     const fullUrl = `${baseUrl}/query/${queryId}/call/${callId}/${reqResp}`;
 
-    const actualPreviewLength = resultType && resultType.toLowerCase() === "html" ? 200000 : PREVIEW_LENGTH;
+    const actualPreviewLength = isRequest ? PREVIEW_LONG_LENGTH : 
+      (resultType && resultType.toLowerCase() === "html" ? PREVIEW_LONG_LENGTH : PREVIEW_LENGTH);
 
     try {
       const response = await fetch(fullUrl, {

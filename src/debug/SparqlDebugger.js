@@ -6,9 +6,10 @@ import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import Link from '@mui/material/Link';
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import ErrorIcon from '@mui/icons-material/Error';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AnimLoadingComponent from './AnimLoadingComponent';
 import ReqRespIconButton from './ReqRespIconButton';
-import { PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl } from './utils/constants';
+import { PENDING_STATE, SUCCESS_STATE, FAILURE_STATE, baseUrl, ETC_STATE } from './utils/constants';
 import {
   TreeItem2Content,
   TreeItem2IconContainer,
@@ -93,6 +94,8 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
           return <StyledDoneRoundedIcon />;
         case FAILURE_STATE:
           return <StyledErrorIcon />;
+        case ETC_STATE:
+          return <MoreVertIcon />
         default:
           return null;
       }
@@ -127,6 +130,8 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
                 }}
               >
 
+                {nodeContent.state && nodeContent.state !== ETC_STATE && (
+                <>
                 <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                   <Tooltip title="Service endpoint URL">
                     <Typography variant="body2" sx={{ flexGrow: 1, ml: 1 }}>
@@ -134,6 +139,7 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
                     </Typography>
                   </Tooltip>
                 </Box>
+                
                 <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                   <Tooltip title="Http status" arrow>
                     <Typography variant="body2" sx={{ ml: 2 }}>{nodeContent.httpStatus}</Typography>
@@ -171,8 +177,10 @@ const StyledDoneRoundedIcon = styled(DoneRoundedIcon)({
                   )}
 
                 </Box>
-              </Box>
+                </>
+              )}
             </Box>
+          </Box>
 
           </CustomTreeItemContent>
           {children && <TreeItem2GroupTransition {...getGroupTransitionProps()} />}
