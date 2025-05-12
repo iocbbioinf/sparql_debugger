@@ -308,7 +308,7 @@ const SparqlDebugger = forwardRef(({ theme, query, endpoint, requestConfig, quer
             {queryData.queryExecIsRunning ? 'Cancel' : 'Run'}
           </Button>          
 
-          <Link href="https://gitlab.elixir-czech.cz/moos/idsm_debug_server/-/issues" target="_blank" rel="noopener noreferrer" style={{ marginLeft: 16 }}>
+          <Link href="https://github.com/iocbbioinf/sparql_debugger_server/issues" target="_blank" rel="noopener noreferrer" style={{ marginLeft: 16 }}>
           Report Debugging Issue
           </Link>
         </Box>
