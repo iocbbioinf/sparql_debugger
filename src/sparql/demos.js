@@ -4,7 +4,7 @@ import { idn } from "../tag.js"
 
 const demoQueries = [
   {
-    name: "Examples with neXtProt & UniProt",
+    name: "Examples with UniProt",
     description: "Due to availability of official ChEMBL RDF service, these examples currently use a custom mirror of ChEMBL.",
     queries: [{
         name: "UniProt query",
@@ -37,120 +37,181 @@ const demoQueries = [
             ?UNIPROT uniprot:organism ?ORGANISM.
             ?ORGANISM uniprot:scientificName ?ORGANISM_NAME.
           }`
-      },
-      {
-        name: "neXtProt queries",
-        description: "Search for all proteins in neXtProt that have some measured activity with any compound that contains aspirin.",
-        endpoint: "https://sparql.nextprot.org/",
-        query: idn`${0}
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-          PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-          PREFIX chembl: <http://rdf.ebi.ac.uk/terms/chembl#>
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX endpoint: <${endpointBase}/sparql/endpoint/>
-          PREFIX nextprot: <http://nextprot.org/rdf#>
-
-          SELECT ?COMPOUND ?ENTRY WHERE
-          {
-            {
-              SELECT ?COMPOUND ?UNIPROT WHERE {
-                SERVICE endpoint:idsm {
-                  SERVICE endpoint:chembl {
-                    ?COMPOUND sachem:substructureSearch [
-                        sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
-                  }
-
-                  ?ACTIVITY rdf:type chembl:Activity;
-                    chembl:hasMolecule ?COMPOUND;
-                    chembl:hasAssay ?ASSAY.
-                  ?ASSAY chembl:hasTarget ?TARGET.
-                  ?TARGET chembl:hasTargetComponent ?COMPONENT.
-                  ?COMPONENT chembl:targetCmptXref ?UNIPROT.
-                  ?UNIPROT rdf:type chembl:UniprotRef.
-                }
-              }
-            }
-
-            ?ENTRY skos:exactMatch ?UNIPROT.
-          }`
-      },
-      {
-        name: "neXtProt query (via UniProt)",
-        description: "Ask the neXtProt SPARQL endpoint to fetch aspirin-containing compounds and find UniProt proteins which have some measured activity with them, filtering the result using the UniProt class annotation to only display surface antigens.",
-        endpoint: "https://sparql.nextprot.org",
-        query: idn`${0}
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-          PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-          PREFIX dc: <http://purl.org/dc/elements/1.1/>
-          PREFIX chembl: <http://rdf.ebi.ac.uk/terms/chembl#>
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX endpoint: <${endpointBase}/sparql/endpoint/>
-          PREFIX nextprot: <http://nextprot.org/rdf#>
-          PREFIX db: <http://nextprot.org/rdf/db/>
-
-          SELECT ?COMPOUND ?ENTRY WHERE {
-            SERVICE endpoint:idsm {
-              SERVICE endpoint:chembl {
-                ?COMPOUND sachem:substructureSearch [
-                    sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
-              }
-
-              ?ACTIVITY rdf:type chembl:Activity;
-                  chembl:hasMolecule ?COMPOUND;
-                  chembl:hasAssay ?ASSAY.
-              ?ASSAY chembl:hasTarget ?TARGET.
-              ?TARGET chembl:hasTargetComponent ?COMPONENT.
-              ?COMPONENT chembl:targetCmptXref ?UNIPROT.
-              ?UNIPROT rdf:type chembl:UniprotRef.
-              ?UNIPROT dc:identifier ?UNI.
-              ?TARGET chembl:hasProteinClassification ?CLASS.
-              ?CLASS chembl:classPath "/Protein class/Surface antigen".
-            }
-
-            ?ENTRY nextprot:reference [
-                nextprot:provenance db:UniProt;
-                nextprot:accession ?UNI ].
-          }`
-      },
-      {
-        name: "neXtProt queries (via PDB)",
-        description: "Ask the same query as in previous example, but use PDB identifiers to link the results together.",
-        endpoint: "https://sparql.nextprot.org",
-        query: idn`${0}
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-          PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-          PREFIX dc: <http://purl.org/dc/elements/1.1/>
-          PREFIX chembl: <http://rdf.ebi.ac.uk/terms/chembl#>
-          PREFIX sachem: <http://bioinfo.uochb.cas.cz/rdf/v1.0/sachem#>
-          PREFIX endpoint: <${endpointBase}/sparql/endpoint/>
-          PREFIX nextprot: <http://nextprot.org/rdf#>
-          PREFIX db: <http://nextprot.org/rdf/db/>
-
-          SELECT ?COMPOUND ?ENTRY WHERE {
-            SERVICE endpoint:idsm {
-              SERVICE endpoint:chembl {
-                ?COMPOUND sachem:substructureSearch [
-                    sachem:query "CC(=O)Oc1ccccc1C(O)=O" ]
-              }
-
-              ?ACTIVITY rdf:type chembl:Activity;
-                  chembl:hasMolecule ?COMPOUND;
-                  chembl:hasAssay ?ASSAY.
-              ?ASSAY chembl:hasTarget ?TARGET.
-              ?TARGET chembl:hasTargetComponent ?COMPONENT.
-              ?COMPONENT chembl:targetCmptXref ?UNIPROT.
-              ?UNIPROT rdf:type chembl:ProteinDataBankRef.
-              ?UNIPROT dc:identifier ?PDB.
-              ?TARGET chembl:hasProteinClassification ?CLASS.
-              ?CLASS chembl:classPath "/Protein class/Surface antigen".
-            }
-
-            ?ENTRY nextprot:reference [
-                nextprot:provenance db:PDB;
-                nextprot:accession ?PDB ].
-          }`
       }]
-  },{
+  },
+  
+  {
+    name: "Examples from BioSODA demonstrate bulk service node",
+    description: "BioSODA: Federated template search over biological databases",
+    queries: [{
+        name: "Retrieve proteins",
+        description: "Retrieve proteins which are the mouse's proteins encoded by genes which are expressed in the liver and are orthologous to human's INS gene.",
+        endpoint: "https://idsm.elixir-czech.cz/sparql/endpoint/idsm",
+        query: idn`${0}
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX up: <http://purl.uniprot.org/core/>
+        PREFIX genex: <http://purl.org/genex#>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>
+        PREFIX orth: <http://purl.org/net/orth#>
+        PREFIX sio: <http://semanticscience.org/resource/>
+        PREFIX lscr: <http://purl.org/lscr#>
+        SELECT ?name1 ?protein1 ?name2 ?protein2 ?OMA_link2 ?anatomicalEntity {
+          SELECT DISTINCT * {
+            SERVICE <https://www.bgee.org/sparql/> {
+              ?taxon up:commonName 'human' ;
+                up:commonName ?name1 .
+              ?taxon2 up:commonName 'mouse' ;
+                up:commonName ?name2 .
+            }
+            SERVICE <https://sparql.omabrowser.org/sparql/> {
+              ?cluster a orth:OrthologsCluster .
+              ?cluster orth:hasHomologousMember ?node1 .
+              ?cluster orth:hasHomologousMember ?node2 .
+              ?node2 orth:hasHomologousMember* ?protein2 .
+              ?node1 orth:hasHomologousMember* ?protein1 .
+              ?protein1 a orth:Protein .
+              ?protein1 rdfs:label 'INS' ;
+                orth:organism/obo:RO_0002162 ?taxon .
+              ?protein2 a orth:Protein ;
+                sio:SIO_010079 ?gene ; #is encoded by
+                orth:organism/obo:RO_0002162 ?taxon2 .
+              ?gene lscr:xrefEnsemblGene ?geneEns .
+              ?protein2 rdfs:seeAlso ?OMA_link2 .
+              FILTER ( ?node1 != ?node2 )
+            }
+            SERVICE <https://www.bgee.org/sparql/> {
+              ?geneB a orth:Gene .
+                ?geneB genex:isExpressedIn ?cond .
+                ?cond genex:hasAnatomicalEntity ?anat .
+                ?geneB lscr:xrefEnsemblGene ?geneEns .
+              ?anat rdfs:label 'liver' ;
+                rdfs:label ?anatomicalEntity .
+              ?geneB orth:organism ?o .
+              ?o obo:RO_0002162 ?taxon2 .
+            }
+          }
+          LIMIT 10
+        }
+        LIMIT 10`
+      },
+      {
+        name: "Anatomic entities",
+        description: "Anatomic entities where the ins zebrafish gene is expressed and its gene GO annotations.",
+        endpoint: "https://idsm.elixir-czech.cz/sparql/endpoint/idsm",
+        query: idn`${0}
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX genex: <http://purl.org/genex#>
+        PREFIX lscr: <http://purl.org/lscr#>
+        PREFIX orth: <http://purl.org/net/orth#>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>
+        PREFIX up: <http://purl.uniprot.org/core/>
+        SELECT DISTINCT ?anat_label ?GO_CLASS ?GO_LABEL {
+          SERVICE <https://www.bgee.org/sparql/> {
+            SELECT ?geneEns ?anat_label {
+              ?geneB a orth:Gene .
+              ?geneB genex:isExpressedIn ?anat .
+              ?geneB rdfs:label ?anatLabel ;
+                lscr:xrefEnsemblGene ?geneEns .
+              FILTER (UCASE($anatLabel) = UCASE('ins'))
+              ?anat rdfs:label ?anat_label .
+              ?geneB orth:organism ?o .
+              ?o obo:RO_0002162 ?taxon2 .
+              ?taxon2 up:commonName 'zebrafish' .
+            }
+          }
+          SERVICE <https://sparql.uniprot.org/sparql> {
+            ?uniprot rdfs:seeAlso / up:transcribedFrom ?geneEns .
+            ?uniprot a up:Protein .
+            ?uniprot up:classifiedWith ?GO_CLASS .
+            ?GO_CLASS rdfs:label ?GO_LABEL .
+          }
+        }
+        LIMIT 10`
+    },
+    {
+      name: "Primates genes",
+      description: "Which are the genes in Primates orthologous to a gene that is expressed in the fruit fly’s eye?",
+      endpoint: "https://idsm.elixir-czech.cz/sparql/endpoint/idsm",
+      query: idn`${0}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX up: <http://purl.uniprot.org/core/>
+      PREFIX genex: <http://purl.org/genex#>
+      PREFIX obo: <http://purl.obolibrary.org/obo/>
+      PREFIX orth: <http://purl.org/net/orth#>
+      PREFIX dcterms: <http://purl.org/dc/terms/>
+      SELECT DISTINCT ?orthologous_to_gene_id ?orthologous_to_gene ?hasOrtholog WHERE {
+        SELECT * {
+          SERVICE <https://www.bgee.org/sparql/> {
+            SELECT DISTINCT ?gene ?orthologous_to_gene_id ?orthologous_to_gene {
+              ?gene a orth:Gene .
+              ?gene genex:isExpressedIn ?anat .
+              ?anat rdfs:label 'eye' .
+              ?gene orth:organism ?o .
+              ?o obo:RO_0002162 ?taxon .
+              ?gene dcterms:identifier ?orthologous_to_gene_id .
+              ?gene rdfs:seeAlso ?orthologous_to_gene .
+              ?taxon up:commonName 'fruit fly' .
+            } LIMIT 100
+          }
+          SERVICE <https://sparql.omabrowser.org/sparql/> {
+            ?protein2 a orth:Protein .
+            ?protein1 a orth:Protein .
+            ?clusterPrimates a orth:OrthologsCluster .
+            ?cluster a orth:OrthologsCluster .
+            ?cluster orth:hasHomologousMember ?node1 .
+            ?cluster orth:hasHomologousMember ?node2 .
+            ?node2 orth:hasHomologousMember* ?clusterPrimates .
+            ?clusterPrimates orth:hasHomologousMember* ?protein2 .
+            ?node1 orth:hasHomologousMember* ?protein1 .
+            ?protein1 dcterms:identifier ?orthologous_to_gene_id .
+            ?protein2 rdfs:seeAlso ?hasOrtholog .
+            ?clusterPrimates orth:hasTaxonomicRange ?taxRange .
+            ?taxRange orth:taxRange ?taxLevel .
+            VALUES ?taxLevel { 'Primates' }
+            FILTER ( ?node1 != ?node2 )
+          }
+        }
+      }
+      LIMIT 10`
+    },
+    {
+      name: "Rabbit's proteins",
+      description: "Rabbit's proteins encoded by genes that are orthologous to Mouse's HBB-Y gene and their cross reference links to Uniprot.",
+      endpoint: "https://idsm.elixir-czech.cz/sparql/endpoint/idsm",
+      query: idn`${0}
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX lscr: <http://purl.org/lscr#>
+      PREFIX orth: <http://purl.org/net/orth#>
+      PREFIX up: <http://purl.uniprot.org/core/>
+      PREFIX obo: <http://purl.obolibrary.org/obo/>
+      SELECT DISTINCT ?PROTEIN_1 ?PROTEIN_2 ?UNIPROT_XREF_1 ?UNIPROT_XREF_2 WHERE {
+        SERVICE <https://sparql.uniprot.org/sparql> {
+          ?taxon_1 up:commonName 'Mouse' .
+          ?taxon_2 up:commonName 'Rabbit' .
+        }
+        SERVICE <https://sparql.omabrowser.org/sparql/> {
+          ?cluster a orth:OrthologsCluster .
+          ?cluster orth:hasHomologousMember ?node1 .
+          ?cluster orth:hasHomologousMember ?node2 .
+          ?node2 orth:hasHomologousMember* ?PROTEIN_2 .
+          ?node1 orth:hasHomologousMember* ?PROTEIN_1 .
+          ?PROTEIN_1 a orth:Protein .
+          ?PROTEIN_1 orth:organism/obo:RO_0002162 ?taxon_1 ;
+            rdfs:label 'HBB-Y' ;
+            lscr:xrefUniprot ?UNIPROT_XREF_1 .
+          ?PROTEIN_2 a orth:Protein .
+          ?PROTEIN_2 orth:organism/obo:RO_0002162 ?taxon_2 .
+          ?PROTEIN_2 lscr:xrefUniprot ?UNIPROT_XREF_2 .
+          FILTER ( ?node1 != ?node2 )
+        }
+      }`
+    }  
+    ]
+  },  
+  
+  {
     name: "Examples with Rhea & UniProt",
     queries: [{
         name: "Rhea query",
@@ -396,61 +457,6 @@ const demoQueries = [
           }`
       }]
 },
-{
-  name: "Example from BioSODA demonstrates bulk service node",
-  description: "BioSODA: Federated template search over biological databases",
-  queries: [{
-      name: "Retrieve proteins",
-      description: "Retrieve proteins which are the mouse's proteins encoded by genes which are expressed in the liver and are orthologous to human's INS gene.",
-      endpoint: "https://idsm.elixir-czech.cz/sparql/endpoint/idsm",
-      query: idn`${0}
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX up: <http://purl.uniprot.org/core/>
-      PREFIX genex: <http://purl.org/genex#>
-      PREFIX obo: <http://purl.obolibrary.org/obo/>
-      PREFIX orth: <http://purl.org/net/orth#>
-      PREFIX sio: <http://semanticscience.org/resource/>
-      PREFIX lscr: <http://purl.org/lscr#>
-      SELECT ?name1 ?protein1 ?name2 ?protein2 ?OMA_link2 ?anatomicalEntity {
-        SELECT DISTINCT * {
-          SERVICE <https://www.bgee.org/sparql/> {
-            ?taxon up:commonName 'human' ;
-              up:commonName ?name1 .
-            ?taxon2 up:commonName 'mouse' ;
-              up:commonName ?name2 .
-          }
-          SERVICE <https://sparql.omabrowser.org/sparql/> {
-            ?cluster a orth:OrthologsCluster .
-            ?cluster orth:hasHomologousMember ?node1 .
-            ?cluster orth:hasHomologousMember ?node2 .
-            ?node2 orth:hasHomologousMember* ?protein2 .
-            ?node1 orth:hasHomologousMember* ?protein1 .
-            ?protein1 a orth:Protein .
-            ?protein1 rdfs:label 'INS' ;
-              orth:organism/obo:RO_0002162 ?taxon .
-            ?protein2 a orth:Protein ;
-              sio:SIO_010079 ?gene ; #is encoded by
-              orth:organism/obo:RO_0002162 ?taxon2 .
-            ?gene lscr:xrefEnsemblGene ?geneEns .
-            ?protein2 rdfs:seeAlso ?OMA_link2 .
-            FILTER ( ?node1 != ?node2 )
-          }
-          SERVICE <https://www.bgee.org/sparql/> {
-            ?geneB a orth:Gene .
-              ?geneB genex:isExpressedIn ?cond .
-              ?cond genex:hasAnatomicalEntity ?anat .
-              ?geneB lscr:xrefEnsemblGene ?geneEns .
-            ?anat rdfs:label 'liver' ;
-              rdfs:label ?anatomicalEntity .
-            ?geneB orth:organism ?o .
-            ?o obo:RO_0002162 ?taxon2 .
-          }
-        }
-        LIMIT 10
-      }
-      LIMIT 10`
-    }]
-}];
+];
 
 export { demoQueries };
